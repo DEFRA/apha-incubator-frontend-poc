@@ -1,0 +1,22 @@
+services:
+  # Test runs communicate with these over the compose network by service
+  # name, so none of them need to publish ports on the host. Unpublishing
+  # them lets `docker:test`/`docker:test:watch` run in parallel with the
+  # `docker:dev`/`docker:debug` stack without host port clashes.
+  floci:
+    ports: !override []
+
+  redis:
+    ports: !override []
+
+  mongodb:
+    ports: !override []
+
+  apha-incubator-frontend-poc:
+    build:
+      target: development
+    ports: !override []
+    environment:
+      NODE_ENV: test
+      REDIS_HOST: 127.0.0.1
+    command: ['npm', 'test']

@@ -1,0 +1,9 @@
+services:
+  apha-incubator-frontend-poc:
+    build:
+      target: development
+    volumes:
+      - ./src:/home/node/src:ro
+      - ./package.json:/home/node/package.json:ro
+    environment:
+      NODE_ENV: development
