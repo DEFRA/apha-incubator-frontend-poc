@@ -1,0 +1,3 @@
+services:
+  apha-incubator-frontend-poc:
+    command: ['npm', 'run', 'test:watch']

@@ -1,0 +1,8 @@
+services:
+  apha-incubator-frontend-poc:
+    build:
+      target: development
+    environment:
+      NODE_ENV: test
+      REDIS_HOST: 127.0.0.1
+    command: ['npm', 'test']

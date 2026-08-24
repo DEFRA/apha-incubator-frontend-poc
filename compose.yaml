@@ -1,4 +1,3 @@
-version: '3.4'
 services:
   floci:
     image: hectorvent/floci:latest-aws
@@ -38,7 +37,7 @@ services:
 
   ################################################################################
 
-  your-frontend:
+  apha-incubator-frontend-poc:
     build: ./
     ports:
       - '3000:3000'

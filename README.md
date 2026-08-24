@@ -183,14 +183,33 @@ docker run -p 3000:3000 apha-incubator-frontend-poc
 
 A local environment with:
 
-- Floci (replacing Localstack) for AWS services (S3, SQS)
+- Floci (replacing Localstack) for AWS services (S3, SQS) - used because this service interacts with an S3 bucket
 - Redis
 - MongoDB
 - This service.
 - A commented out backend example.
 
+The Docker Compose configuration is split across several files:
+
+- `compose.yaml` - the base service definitions (Floci, Redis, MongoDB and this service, built to the `production` image target).
+- `compose.override.yaml` - local development overrides, automatically merged in by `docker compose` when no `-f` flags are given (builds the `development` image target and mounts source for live-reload).
+- `compose.debug.yaml` - adds the Node.js debug port and starts the app with the debugger attached.
+- `compose.test.yaml` / `compose.test.watch.yaml` - run the test suite (once, or in watch mode) inside a container.
+
+Npm scripts are provided to start these combinations:
+
 ```bash
-docker compose up --build -d
+# Start the full local Docker stack (compose.yaml + compose.override.yaml)
+npm run docker:dev
+
+# Start the stack with the Node.js debugger enabled
+npm run docker:debug
+
+# Lint then run the test suite once inside a container
+npm run docker:test
+
+# Run the test suite inside a container in watch mode
+npm run docker:test:watch
 ```
 
 ### Dependabot
