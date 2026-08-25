@@ -53,6 +53,7 @@
     "@hapi/vision": "7.0.3",
     "@hapi/yar": "11.0.3",
     "blankie": "5.0.0",
+    "chart.js": "4.5.1",
     "convict": "6.2.5",
     "convict-format-with-validator": "6.2.0",
     "cssnano": "7.1.5",
