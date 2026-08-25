@@ -1,0 +1,5 @@
+{% extends 'partials/dashboard-overview.njk' %}
+
+{% block chartScript %}
+  <script type="module" src="{{ getAssetPath('src/client/javascripts/dashboard-plotly.js') }}"></script>
+{% endblock %}

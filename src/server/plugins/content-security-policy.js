@@ -13,7 +13,12 @@ const contentSecurityPolicy = {
     fontSrc: ['self', 'data:'],
     connectSrc: ['self', 'wss', 'data:'],
     mediaSrc: ['self'],
-    styleSrc: ['self'],
+    // 'unsafe-inline' is required here because Plotly.js injects <style> elements
+    // at runtime for its internal layout CSS (axes, tick labels, container).
+    // Blankie does not support the more targeted 'style-src-elem' directive, so
+    // this relaxation applies to all inline styles across the service.
+    // See docs/plotly.md §CSP for the full investigation.
+    styleSrc: ['self', "'unsafe-inline'"],
     scriptSrc: [
       'self',
       "'sha256-GUQ5ad8JK5KmEWmROf3LZd9ge94daqNvd8xy9YS1iDw='"

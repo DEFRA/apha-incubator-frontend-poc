@@ -20,4 +20,13 @@ describe('#contentSecurityPolicy', () => {
 
     expect(resp.headers['content-security-policy']).toBeDefined()
   })
+
+  test('Should include unsafe-inline in style-src for Plotly.js compatibility', async () => {
+    const resp = await server.inject({
+      method: 'GET',
+      url: '/'
+    })
+
+    expect(resp.headers['content-security-policy']).toContain('unsafe-inline')
+  })
 })
