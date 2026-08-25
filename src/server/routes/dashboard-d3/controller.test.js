@@ -14,7 +14,7 @@ describe('#dashboardD3Controller', () => {
     await server.stop({ timeout: 0 })
   })
 
-  test('overview returns 200 and renders all four chart mounts', async () => {
+  test('Should return 200 and render all four chart mounts', async () => {
     const { result, statusCode } = await server.inject({
       method: 'GET',
       url: '/dashboard/d3'
@@ -29,7 +29,7 @@ describe('#dashboardD3Controller', () => {
     expect($('[data-chart-id="severity-breakdown"]').length).toBe(1)
   })
 
-  test('overview renders the synthetic-data warning', async () => {
+  test('Should render the synthetic-data warning on the overview', async () => {
     const { result, statusCode } = await server.inject({
       method: 'GET',
       url: '/dashboard/d3'
@@ -39,7 +39,7 @@ describe('#dashboardD3Controller', () => {
     expect(result).toEqual(expect.stringContaining('synthetic'))
   })
 
-  test('expanded view returns 200 for weekly-cases', async () => {
+  test('Should return 200 for the expanded weekly-cases view', async () => {
     const { result, statusCode } = await server.inject({
       method: 'GET',
       url: '/dashboard/d3/weekly-cases'
@@ -49,18 +49,18 @@ describe('#dashboardD3Controller', () => {
     expect(result).toEqual(expect.stringContaining('Weekly new cases'))
   })
 
-  test('expanded view honours region and disease query params', async () => {
+  test('Should honour region and disease query params on the expanded view', async () => {
     const { result, statusCode } = await server.inject({
       method: 'GET',
       url: '/dashboard/d3/weekly-cases?region=Devon&disease=bramblewick-pox'
     })
 
-    // Falls back to "all" for unknown values — should still return 200
+    // Unknown values fall back to "all" — should still return 200
     expect(statusCode).toBe(statusCodes.ok)
     expect(result).toEqual(expect.stringContaining('Weekly new cases'))
   })
 
-  test('invalid filter values fall back to all rather than erroring', async () => {
+  test('Should fall back to all records when filter values are unrecognised', async () => {
     const { statusCode } = await server.inject({
       method: 'GET',
       url: '/dashboard/d3/weekly-cases?region=UNKNOWN_REGION&disease=UNKNOWN_DISEASE'
@@ -69,12 +69,13 @@ describe('#dashboardD3Controller', () => {
     expect(statusCode).toBe(statusCodes.ok)
   })
 
-  test('unknown chartId returns 404', async () => {
-    const { statusCode } = await server.inject({
+  test('Should return 404 and render the styled error page for an unknown chartId', async () => {
+    const { result, statusCode } = await server.inject({
       method: 'GET',
       url: '/dashboard/d3/not-a-real-chart'
     })
 
     expect(statusCode).toBe(statusCodes.notFound)
+    expect(result).toEqual(expect.stringContaining('Page not found'))
   })
 })
