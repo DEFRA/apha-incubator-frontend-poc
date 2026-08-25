@@ -14,7 +14,7 @@ describe('#dashboardPlotlyController', () => {
     await server.stop({ timeout: 0 })
   })
 
-  test('overview returns 200 and renders all four chart mounts', async () => {
+  test('Should return 200 and render all four chart mounts', async () => {
     const { result, statusCode } = await server.inject({
       method: 'GET',
       url: '/dashboard/plotly'
@@ -29,7 +29,7 @@ describe('#dashboardPlotlyController', () => {
     expect($('[data-testid="chart-mount-severity-breakdown"]').length).toBe(1)
   })
 
-  test('overview shows the synthetic-data warning', async () => {
+  test('Should show the synthetic-data warning', async () => {
     const { result, statusCode } = await server.inject({
       method: 'GET',
       url: '/dashboard/plotly'
@@ -54,7 +54,7 @@ describe('#dashboardPlotlyExpandedController', () => {
     await server.stop({ timeout: 0 })
   })
 
-  test('expanded view returns 200 for weekly-cases', async () => {
+  test('Should return 200 for weekly-cases expanded view', async () => {
     const { result, statusCode } = await server.inject({
       method: 'GET',
       url: '/dashboard/plotly/weekly-cases'
@@ -64,7 +64,7 @@ describe('#dashboardPlotlyExpandedController', () => {
     expect(result).toEqual(expect.stringContaining('Weekly new cases'))
   })
 
-  test('expanded view honours ?region and ?disease query params', async () => {
+  test('Should honour ?region and ?disease query params', async () => {
     const { result, statusCode } = await server.inject({
       method: 'GET',
       url: '/dashboard/plotly/weekly-cases?region=Devon&disease=bramblewick-pox'
@@ -76,7 +76,7 @@ describe('#dashboardPlotlyExpandedController', () => {
     expect(result).toEqual(expect.stringContaining('Plotly.js'))
   })
 
-  test('invalid filter values fall back to all rather than erroring', async () => {
+  test('Should fall back to all when filter values are invalid', async () => {
     const { result, statusCode } = await server.inject({
       method: 'GET',
       url: '/dashboard/plotly/weekly-cases?region=InvalidRegion&disease=invalid-disease'
@@ -87,12 +87,13 @@ describe('#dashboardPlotlyExpandedController', () => {
     expect($('[data-testid="chart-mount-weekly-cases"]').length).toBe(1)
   })
 
-  test('unknown chartId returns 404', async () => {
-    const { statusCode } = await server.inject({
+  test('Should return 404 with "Page not found" for an unknown chartId', async () => {
+    const { result, statusCode } = await server.inject({
       method: 'GET',
       url: '/dashboard/plotly/not-a-real-chart'
     })
 
     expect(statusCode).toBe(statusCodes.notFound)
+    expect(result).toEqual(expect.stringContaining('Page not found'))
   })
 })

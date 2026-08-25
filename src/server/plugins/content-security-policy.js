@@ -13,12 +13,15 @@ const contentSecurityPolicy = {
     fontSrc: ['self', 'data:'],
     connectSrc: ['self', 'wss', 'data:'],
     mediaSrc: ['self'],
-    // 'unsafe-inline' is required here because Plotly.js injects <style> elements
-    // at runtime for its internal layout CSS (axes, tick labels, container).
-    // Blankie does not support the more targeted 'style-src-elem' directive, so
-    // this relaxation applies to all inline styles across the service.
-    // See docs/plotly.md §CSP for the full investigation.
-    styleSrc: ['self', "'unsafe-inline'"],
+    // Plotly.js creates an empty <style> element via document.createElement('style')
+    // + document.head.appendChild, then populates it using CSSStyleSheet.insertRule.
+    // The hash is computed over the element's text content *at insertion time* (empty
+    // string ""). insertRule calls after insertion are not subject to style-src CSP.
+    // This hash is pinned to plotly.js-basic-dist-min@4.0.0, which creates exactly one
+    // style element with empty initial text. Update if Plotly ever switches to
+    // textContent-based injection or changes the number of style elements it creates.
+    // sha256 of "": openssl dgst -sha256 -binary <(echo -n "") | base64
+    styleSrc: ['self', "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='"],
     scriptSrc: [
       'self',
       "'sha256-GUQ5ad8JK5KmEWmROf3LZd9ge94daqNvd8xy9YS1iDw='"
