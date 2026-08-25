@@ -11,6 +11,7 @@ Chart.js is a canvas-based library with a simple, declarative API. It integrates
 The library has no peer dependencies and no CDN requirement. It sits entirely within the existing Vite build pipeline.
 
 Downsides:
+
 - Canvas-based rendering means charts are raster images — not natively zoomable or selectable as text.
 - Chart.js does not produce SVG, so output cannot be styled with CSS or searched by screen readers. The accessible data table paired with every chart is therefore essential, not optional.
 - Date-axis formatting requires a separate adapter package (`chartjs-adapter-date-fns`, `chartjs-adapter-luxon`, etc). This prototype omits it to avoid an extra dependency; date labels are rendered as raw ISO strings on a CategoryScale. A production build would need a suitable adapter.
@@ -20,9 +21,9 @@ Downsides:
 
 Measured from `npm run build:frontend`:
 
-| Chunk | Raw | Gzip |
-|---|---|---|
-| `application.js` (baseline) | 9.85 kB | 3.16 kB |
+| Chunk                              | Raw       | Gzip     |
+| ---------------------------------- | --------- | -------- |
+| `application.js` (baseline)        | 9.85 kB   | 3.16 kB  |
 | `dashboardChartjs.js` (this entry) | 189.85 kB | 66.00 kB |
 
 The Chart.js entry adds approximately **180 kB raw / 63 kB gzip** over the baseline application bundle. This is a tree-shaken build — only the six controllers/elements/scales/plugins actually used are registered (no `chart.js/auto`). Importing `chart.js/auto` would be roughly 230 kB raw. The cost is primarily the Chart.js core; it cannot be reduced materially without switching to a lighter library.
@@ -54,5 +55,4 @@ No CSP changes were needed. Chart.js sets sizing properties via `canvas.style.wi
 - **Set `Chart.defaults.font.family`** to `GDS Transport, Arial, sans-serif` so axis labels and legend text match the page typography.
 - **Add focus / keyboard navigation** for the clickable chart card, or wrap the mount in a button/link element rather than attaching a raw click listener.
 - **Consider SVG alternatives** if zooming or text selection in chart content is required — Chart.js cannot produce SVG.
-- **Lazy-load** the Chart.js chunk on pages that actually use charts rather than including it globally, using dynamic `import()` if the page ever gains non-chart routes.
 - **Expose chart titles in the canvas** via `plugins.title` so the `aria-label` on the mount is not the only source of context, even if the canvas remains `aria-hidden`.

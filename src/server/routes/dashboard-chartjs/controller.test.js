@@ -15,7 +15,7 @@ describe('#dashboardChartjsController', () => {
   })
 
   describe('GET /dashboard/chartjs', () => {
-    test('returns 200', async () => {
+    test('Should return 200 for the overview page', async () => {
       const { statusCode } = await server.inject({
         method: 'GET',
         url: '/dashboard/chartjs'
@@ -23,7 +23,7 @@ describe('#dashboardChartjsController', () => {
       expect(statusCode).toBe(statusCodes.ok)
     })
 
-    test('renders all four chart mounts', async () => {
+    test('Should render all four chart mounts', async () => {
       const { result } = await server.inject({
         method: 'GET',
         url: '/dashboard/chartjs'
@@ -35,7 +35,7 @@ describe('#dashboardChartjsController', () => {
       expect($('[data-chart-id="severity-breakdown"]').length).toBe(1)
     })
 
-    test('renders synthetic-data warning', async () => {
+    test('Should render the synthetic-data warning', async () => {
       const { result } = await server.inject({
         method: 'GET',
         url: '/dashboard/chartjs'
@@ -57,7 +57,7 @@ describe('#dashboardChartjsExpandedController', () => {
     await server.stop({ timeout: 0 })
   })
 
-  test('returns 200 for weekly-cases', async () => {
+  test('Should return 200 for the weekly-cases expanded view', async () => {
     const { statusCode } = await server.inject({
       method: 'GET',
       url: '/dashboard/chartjs/weekly-cases'
@@ -65,7 +65,7 @@ describe('#dashboardChartjsExpandedController', () => {
     expect(statusCode).toBe(statusCodes.ok)
   })
 
-  test('honours region and disease query params', async () => {
+  test('Should honour region and disease query params', async () => {
     const { result, statusCode } = await server.inject({
       method: 'GET',
       url: '/dashboard/chartjs/weekly-cases?region=Devon&disease=bramblewick-pox'
@@ -74,7 +74,7 @@ describe('#dashboardChartjsExpandedController', () => {
     expect(result).toContain('Devon')
   })
 
-  test('invalid filter values fall back gracefully (no 500)', async () => {
+  test('Should fall back to all records when filter values are invalid', async () => {
     const { statusCode } = await server.inject({
       method: 'GET',
       url: '/dashboard/chartjs/weekly-cases?region=NotARealRegion&disease=not-real'
@@ -82,11 +82,12 @@ describe('#dashboardChartjsExpandedController', () => {
     expect(statusCode).toBe(statusCodes.ok)
   })
 
-  test('unknown chartId returns 404', async () => {
-    const { statusCode } = await server.inject({
+  test('Should return 404 and render the error page for an unknown chartId', async () => {
+    const { result, statusCode } = await server.inject({
       method: 'GET',
       url: '/dashboard/chartjs/not-a-real-chart'
     })
     expect(statusCode).toBe(statusCodes.notFound)
+    expect(result).toContain('Page not found')
   })
 })

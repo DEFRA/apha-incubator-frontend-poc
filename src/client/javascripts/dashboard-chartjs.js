@@ -204,7 +204,6 @@ document.querySelectorAll('.app-chart[data-chart-id]').forEach((mount) => {
   }
 
   if (isClickable && chartHref && chartHref !== '#') {
-    mount.style.cursor = 'pointer'
     mount.addEventListener('click', () => {
       window.location.assign(chartHref)
     })
