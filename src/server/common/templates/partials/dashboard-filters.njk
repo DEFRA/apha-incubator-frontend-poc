@@ -1,0 +1,39 @@
+{% from "govuk/components/select/macro.njk" import govukSelect %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{#
+  Server-side filter controls for the expanded view. Submits a GET to the
+  current path, so filtering is a plain page reload driven by query params.
+#}
+{% macro appDashboardFilters(action, filterOptions) %}
+  <form method="get" action="{{ action }}" class="app-dashboard-filters"
+        data-testid="dashboard-filters">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-third">
+        {{ govukSelect({
+          id: "region",
+          name: "region",
+          label: { text: "Region" },
+          items: filterOptions.region
+        }) }}
+      </div>
+      <div class="govuk-grid-column-one-third">
+        {{ govukSelect({
+          id: "disease",
+          name: "disease",
+          label: { text: "Disease" },
+          items: filterOptions.disease
+        }) }}
+      </div>
+      <div class="govuk-grid-column-one-third app-dashboard-filters__actions">
+        {{ govukButton({
+          text: "Apply filters",
+          attributes: { "data-testid": "apply-filters" }
+        }) }}
+        <p class="govuk-body">
+          <a class="govuk-link" href="{{ action }}">Clear filters</a>
+        </p>
+      </div>
+    </div>
+  </form>
+{% endmacro %}

@@ -9,7 +9,33 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <div class="govuk-body" data-testid="app-page-body">
-        <p></p>
+        <h2 class="govuk-heading-m">Charting library prototypes</h2>
+        <p>
+          Three dashboard prototypes render the same four charts from the same synthetic
+          animal disease outbreak dataset, each using a different charting library. They exist
+          so the libraries can be compared like for like against GOV.UK Design System and
+          accessibility expectations.
+        </p>
+        <p>
+          Each dashboard shows weekly new cases, cases by region, cases by disease and a
+          severity breakdown. Every chart is paired with an accessible data table, and the
+          weekly new cases chart opens an expanded, filterable view.
+        </p>
+
+        <ul class="govuk-list" data-testid="prototype-links">
+          {% for prototype in prototypes %}
+            <li class="govuk-!-margin-bottom-3">
+              <a class="govuk-link" href="{{ prototype.href }}">{{ prototype.name }} dashboard</a>
+              <br>
+              <span class="govuk-hint">{{ prototype.description }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+
+        <p class="govuk-hint">
+          The prototypes are delivered on separate branches, so a link will only work once
+          that branch is merged.
+        </p>
       </div>
     </div>
   </div>

@@ -1,0 +1,62 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "partials/chart-card.njk" import appChartCard %}
+{% from "partials/dashboard-filters.njk" import appDashboardFilters %}
+{% from "partials/synthetic-data-warning.njk" import appSyntheticDataWarning %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+
+{#
+  Shared expanded layout for every charting-library prototype. Library branches
+  extend this and override the `chartScript` block with their own Vite entry.
+#}
+{% block content %}
+  {{ appHeading({
+    text: heading,
+    caption: caption
+  }) }}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {{ appSyntheticDataWarning(disclaimer) }}
+    </div>
+  </div>
+
+  {{ appDashboardFilters(basePath + "/" + chart.id, filterOptions) }}
+
+  {% if not hasRecords %}
+    {{ govukInsetText({
+      text: "No records match the selected filters. Clear the filters to see the full dataset.",
+      attributes: { "data-testid": "no-records" }
+    }) }}
+  {% endif %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {{ appChartCard(chart, "large") }}
+    </div>
+    <div class="govuk-grid-column-one-third" data-testid="summary-panels">
+      {% for panel in panels %}
+        <section class="app-summary-panel" data-testid="summary-panel-{{ loop.index }}">
+          <h2 class="govuk-heading-s">{{ panel.heading }}</h2>
+          {{ govukSummaryList({
+            rows: panel.rows,
+            classes: "govuk-summary-list--no-border govuk-!-font-size-16"
+          }) }}
+        </section>
+      {% endfor %}
+    </div>
+  </div>
+
+  <p class="govuk-body">
+    <a class="govuk-link" href="{{ basePath }}" data-testid="back-to-dashboard">
+      Back to the {{ libraryName }} dashboard
+    </a>
+  </p>
+
+{% endblock %}
+
+{% block bodyEnd %}
+  {{ super() }}
+  {% block chartScript %}{% endblock %}
+{% endblock %}
