@@ -2,6 +2,7 @@ import inert from '@hapi/inert'
 
 import { home } from '../routes/home/index.js'
 import { about } from '../routes/about/index.js'
+import { dashboardChartjs } from '../routes/dashboard-chartjs/index.js'
 import { dashboardD3 } from '../routes/dashboard-d3/index.js'
 import { health } from '../routes/health/index.js'
 import { serveStaticFiles } from './serve-static-files.js'
@@ -17,7 +18,7 @@ export const router = {
       await server.register([health])
 
       // Application specific routes, add your own routes here
-      await server.register([home, about, dashboardD3])
+      await server.register([home, about, dashboardChartjs, dashboardD3])
 
       // Static assets
       if (!config.get('isProduction') && !config.get('isTest')) {
