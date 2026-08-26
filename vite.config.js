@@ -10,7 +10,8 @@ export default defineConfig({
       input: {
         htmlAssets: 'src/client/assets.html',
         application: 'src/client/javascripts/application.js',
-        applicationCss: 'src/client/stylesheets/application.scss'
+        applicationCss: 'src/client/stylesheets/application.scss',
+        dashboardD3: 'src/client/javascripts/dashboard-d3.js'
       }
     },
     sourcemap: true
