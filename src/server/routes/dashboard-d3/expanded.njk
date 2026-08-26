@@ -1,0 +1,5 @@
+{% extends 'partials/dashboard-expanded.njk' %}
+
+{% block chartScript %}
+  <script type="module" src="{{ getAssetPath('src/client/javascripts/dashboard-d3.js') }}"></script>
+{% endblock %}
