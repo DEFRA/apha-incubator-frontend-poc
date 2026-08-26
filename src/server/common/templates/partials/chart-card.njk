@@ -1,0 +1,60 @@
+{% from "govuk/components/details/macro.njk" import govukDetails %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
+
+{#
+  Renders one chart card: heading, caption, chart mount point with an embedded
+  JSON payload, an optional expanded-view link and an accessible data table.
+
+  The mount point carries everything a client-side charting module needs:
+    data-chart-id    the chart identifier
+    data-chart-type  line | bar | stacked-bar | doughnut
+    data-label-type  date | category
+    data-chart-href  the expanded view to navigate to when clicked ("#" if inert)
+#}
+{% macro appChartCard(chart, size) %}
+  {% set chartHeight = "app-chart--large" if size == "large" else "" %}
+  <section class="app-chart-card" data-testid="chart-card-{{ chart.id }}">
+    <h2 class="govuk-heading-m govuk-!-margin-bottom-1">{{ chart.heading }}</h2>
+    <p class="govuk-caption-m govuk-!-margin-bottom-3">{{ chart.caption }}</p>
+
+    <div class="app-chart {{ chartHeight }}"
+         data-chart-id="{{ chart.id }}"
+         data-chart-type="{{ chart.chartType }}"
+         data-label-type="{{ chart.labelType }}"
+         data-chart-href="{{ chart.href }}"
+         data-clickable="{{ "true" if chart.isClickable else "false" }}"
+         data-testid="chart-mount-{{ chart.id }}"
+         role="img"
+         aria-label="{{ chart.heading }}. {{ chart.caption }}. The same information is available in the data table below."></div>
+
+    {# Non-executable data block: read by the client-side charting module. #}
+    <script type="application/json" data-chart-data="{{ chart.id }}">{{ chart.data | toJsonScript | safe }}</script>
+
+    {% if chart.isClickable %}
+      <p class="govuk-body govuk-!-margin-top-2">
+        <a class="govuk-link" href="{{ chart.href }}" data-testid="chart-link-{{ chart.id }}">
+          View expanded {{ chart.heading | lower }} chart
+        </a>
+      </p>
+    {% else %}
+      <p class="govuk-body govuk-!-margin-top-2">
+        <a class="govuk-link govuk-link--no-visited-state" href="#" data-testid="chart-link-{{ chart.id }}"
+           aria-disabled="true">
+          Expanded view not available in this prototype
+        </a>
+      </p>
+    {% endif %}
+
+    {{ govukDetails({
+      summaryText: "View data table for " + (chart.heading | lower),
+      html: govukTable({
+        caption: chart.heading,
+        captionClasses: "govuk-visually-hidden",
+        firstCellIsHeader: true,
+        head: chart.table.head,
+        rows: chart.table.rows
+      })
+    }) }}
+  </section>
+{% endmacro %}
+

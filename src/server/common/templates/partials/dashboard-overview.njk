@@ -1,0 +1,46 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "partials/chart-card.njk" import appChartCard %}
+{% from "partials/synthetic-data-warning.njk" import appSyntheticDataWarning %}
+
+{#
+  Shared overview layout for every charting-library prototype. Library branches
+  extend this and override the `chartScript` block with their own Vite entry.
+#}
+{% block content %}
+  {{ appHeading({
+    text: heading,
+    caption: caption
+  }) }}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <div class="govuk-body" data-testid="app-page-body">
+        <p>
+          The same four charts are rendered from the same synthetic outbreak dataset by each
+          prototype, so the charting libraries can be compared like for like. This page uses
+          <strong>{{ libraryName }}</strong>.
+        </p>
+        <p>
+          Every chart is paired with an accessible data table. The weekly new cases chart can be
+          selected to open an expanded view with filters.
+        </p>
+      </div>
+      {{ appSyntheticDataWarning(disclaimer) }}
+    </div>
+  </div>
+
+  <div class="govuk-grid-row app-chart-grid" data-testid="chart-grid">
+    {% for chart in charts %}
+      <div class="govuk-grid-column-one-half">
+        {{ appChartCard(chart) }}
+      </div>
+    {% endfor %}
+  </div>
+
+{% endblock %}
+
+{% block bodyEnd %}
+  {{ super() }}
+  {% block chartScript %}{% endblock %}
+{% endblock %}

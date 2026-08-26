@@ -1,0 +1,42 @@
+@use "govuk-frontend" as *;
+
+.app-chart-grid {
+  margin-bottom: govuk-spacing(6);
+}
+
+.app-chart-card {
+  border: 1px solid $govuk-border-colour;
+  margin-bottom: govuk-spacing(6);
+  padding: govuk-spacing(4);
+}
+
+.app-chart {
+  height: 260px;
+  margin-bottom: govuk-spacing(2);
+  position: relative;
+  width: 100%;
+}
+
+.app-chart--large {
+  height: 440px;
+}
+
+.app-chart[data-clickable="true"] {
+  cursor: pointer;
+}
+
+.app-dashboard-filters {
+  background-color: govuk-colour("light-grey");
+  margin-bottom: govuk-spacing(6);
+  padding: govuk-spacing(4) govuk-spacing(2) 0;
+}
+
+.app-dashboard-filters__actions {
+  padding-top: govuk-spacing(6);
+}
+
+.app-summary-panel {
+  border-top: 2px solid $govuk-brand-colour;
+  margin-bottom: govuk-spacing(6);
+  padding-top: govuk-spacing(2);
+}
