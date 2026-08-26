@@ -11,7 +11,8 @@ export default defineConfig({
         htmlAssets: 'src/client/assets.html',
         application: 'src/client/javascripts/application.js',
         applicationCss: 'src/client/stylesheets/application.scss',
-        dashboardChartjs: 'src/client/javascripts/dashboard-chartjs.js'
+        dashboardChartjs: 'src/client/javascripts/dashboard-chartjs.js',
+        dashboardD3: 'src/client/javascripts/dashboard-d3.js'
       }
     },
     sourcemap: true
