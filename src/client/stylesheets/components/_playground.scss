@@ -1,0 +1,7 @@
+@use "govuk-frontend" as *;
+
+// Drawing surfaces for the /playground D3 sandbox.
+.app-playground-canvas {
+  border: 1px dashed $govuk-border-colour;
+  margin-bottom: govuk-spacing(6);
+}
