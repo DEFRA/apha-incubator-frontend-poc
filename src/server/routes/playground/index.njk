@@ -1,0 +1,69 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "partials/synthetic-data-warning.njk" import appSyntheticDataWarning %}
+
+{#
+  D3 playground page.
+
+  This template only provides the mount points and the data payload. All D3 code
+  lives in src/client/javascripts/playground.js — you should not need to edit
+  this file unless you want another mount point to draw into.
+#}
+{% block content %}
+  {{ appHeading({
+    text: heading,
+    caption: caption
+  }) }}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <div class="govuk-body" data-testid="app-page-body">
+        <p>
+          A sandbox for learning D3.js. The synthetic outbreak dataset and a set of ready-made
+          aggregations are embedded in this page as JSON and passed to your code as
+          <code>data</code>.
+        </p>
+        <p>
+          Write your visualisations in
+          <code>src/client/javascripts/playground.js</code>. The dev server rebuilds on save, so
+          refresh the page to see changes.
+        </p>
+      </div>
+      {{ appSyntheticDataWarning(disclaimer) }}
+    </div>
+  </div>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <h2 class="govuk-heading-m">Main canvas</h2>
+      {# Primary drawing surface: d3.select('[data-playground-mount="main"]') #}
+      <div class="app-chart app-chart--large app-playground-canvas"
+           data-playground-mount="main"
+           data-testid="playground-mount-main"></div>
+    </div>
+  </div>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+      <h2 class="govuk-heading-m">Scratch canvas A</h2>
+      {# Secondary surface, handy for comparing two approaches side by side. #}
+      <div class="app-chart app-playground-canvas"
+           data-playground-mount="scratch-a"
+           data-testid="playground-mount-scratch-a"></div>
+    </div>
+    <div class="govuk-grid-column-one-half">
+      <h2 class="govuk-heading-m">Scratch canvas B</h2>
+      <div class="app-chart app-playground-canvas"
+           data-playground-mount="scratch-b"
+           data-testid="playground-mount-scratch-b"></div>
+    </div>
+  </div>
+
+  {# Non-executable data block: parsed by the playground client module. #}
+  <script type="application/json" data-playground-data>{{ playgroundData | toJsonScript | safe }}</script>
+{% endblock %}
+
+{% block bodyEnd %}
+  {{ super() }}
+  <script type="module" src="{{ getAssetPath('src/client/javascripts/playground.js') }}"></script>
+{% endblock %}

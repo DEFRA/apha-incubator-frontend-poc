@@ -13,7 +13,8 @@ export default defineConfig({
         applicationCss: 'src/client/stylesheets/application.scss',
         dashboardPlotly: 'src/client/javascripts/dashboard-plotly.js',
         dashboardChartjs: 'src/client/javascripts/dashboard-chartjs.js',
-        dashboardD3: 'src/client/javascripts/dashboard-d3.js'
+        dashboardD3: 'src/client/javascripts/dashboard-d3.js',
+        playground: 'src/client/javascripts/playground.js'
       }
     },
     sourcemap: true

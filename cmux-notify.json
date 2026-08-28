@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "hooks": {
+    "agentStop": [
+      {
+        "type": "command",
+        "bash": "if command -v cmux >/dev/null 2>&1; then cmux notify --title \"Copilot CLI\" --subtitle \"Waiting\" --body \"Ready for your input\"; fi",
+        "timeoutSec": 5
+      }
+    ],
+    "notification": [
+      {
+        "type": "command",
+        "matcher": "permission_prompt|elicitation_dialog",
+        "bash": "if command -v cmux >/dev/null 2>&1; then cmux notify --title \"Copilot CLI\" --subtitle \"Action needed\" --body \"Copilot needs your input\"; fi",
+        "timeoutSec": 5
+      }
+    ],
+    "errorOccurred": [
+      {
+        "type": "command",
+        "bash": "if command -v cmux >/dev/null 2>&1; then cmux notify --title \"Copilot CLI\" --subtitle \"Error\" --body \"An error occurred\"; fi",
+        "timeoutSec": 5
+      }
+    ]
+  }
+}
