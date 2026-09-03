@@ -64,7 +64,7 @@ Two refinements this drives into the plan below:
 - Review decisions (`approved` / `rejected` / `needs_investigation`) are stored in a simple
   in-memory server-side store (e.g. a Map/object in a singleton service). This resets on
   server restart — acceptable for a demo.
-- S3 is *not* wired up for real in this MVP. The batch-loading code lives in one small,
+- S3 is _not_ wired up for real in this MVP. The batch-loading code lives in one small,
   isolated module reading from local disk (default path `./csv`), so it stays trivial to
   swap for an S3-backed implementation later — but no abstraction layer/interface is
   built speculatively, per "keep this as minimal as possible."
@@ -147,7 +147,7 @@ Two refinements this drives into the plan below:
 8. **Manual smoke test**
    - Run the app locally, walk through: dashboard shows diff → approve/reject/flag a
      few records → approved list updates → export downloads JSON → `GET
-     /api/approved-records` returns matching JSON.
+/api/approved-records` returns matching JSON.
 
 9. **Docs**
    - Add a short section to `README.md` (or a new `docs/` note) describing the
