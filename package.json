@@ -13,6 +13,7 @@
     "dev": "AWS_EMF_ENVIRONMENT=Local npm run server:watch",
     "dev:debug": "AWS_EMF_ENVIRONMENT=Local npm run server:debug",
     "start:dev": "npm run dev",
+    "adis:extract": "node adis-extraction/index.js",
     "docker:dev": "docker compose up --build",
     "docker:debug": "docker compose -f compose.yaml -f compose.override.yaml -f compose.debug.yaml -p \"apha-incubator-frontend-poc\" up --build",
     "docker:test": "npm run lint && docker compose -p apha-incubator-frontend-poc-test down -v && docker compose -f compose.yaml -f compose.test.yaml -p apha-incubator-frontend-poc-test run --build --rm apha-incubator-frontend-poc",

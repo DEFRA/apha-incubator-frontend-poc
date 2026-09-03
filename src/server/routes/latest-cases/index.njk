@@ -1,0 +1,163 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/accordion/macro.njk" import govukAccordion %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+
+{% block content %}
+  {{ appHeading({
+    text: heading,
+    caption: "apha-incubator-frontend-poc"
+  }) }}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <div class="govuk-body" data-testid="app-page-body">
+        <p>
+          Avian influenza events reported to WOAH's WAHIS (World Animal Health
+          Information System) for countries in Europe, submitted in the last
+          24 hours. This calls the live, unofficial, reverse-engineered
+          public WAHIS API described in
+          <a class="govuk-link" href="https://github.com/DEFRA/wahis-openapi">DEFRA/wahis-openapi</a>
+          — it is not an official WOAH data feed.
+        </p>
+
+        {% if generatedAt %}
+          <p class="govuk-hint" data-testid="generated-at">
+            Data generated {{ generatedAt | formatDate("EEE do MMMM yyyy, HH:mm") }}.
+          </p>
+        {% endif %}
+
+        {% if upstreamError %}
+          {{ govukWarningText({
+            text: "Unable to reach the WAHIS API right now. Please try again later.",
+            iconFallbackText: "Warning",
+            attributes: { "data-testid": "upstream-error" }
+          }) }}
+        {% elif partialFailures %}
+          {{ govukInsetText({
+            text: "Detail could not be loaded for one or more events below. Their summary is still shown.",
+            attributes: { "data-testid": "partial-failures" }
+          }) }}
+        {% endif %}
+
+        {% if truncated %}
+          {{ govukInsetText({
+            text: "More events matched than are shown below. Results are truncated to the most recent " + events.length + ".",
+            attributes: { "data-testid": "truncated-notice" }
+          }) }}
+        {% endif %}
+
+        {% if not upstreamError and not hasEvents %}
+          <p data-testid="empty-state">
+            No avian influenza alerts for Europe in the last 24 hours.
+          </p>
+        {% elif hasEvents %}
+          {% set accordionItems = [] %}
+          {% for event in events %}
+            {% set html %}
+              {% if event.detailError %}
+                {{ govukInsetText({
+                  text: "Detail could not be loaded for this event."
+                }) }}
+              {% elif event.detail %}
+                {{ govukTable({
+                  attributes: { "data-testid": "event-detail-table" },
+                  rows: [
+                    [{ text: "Subtype" }, { text: event.detail.subType }],
+                    [{ text: "Causal agent" }, { text: event.detail.causalAgent }],
+                    [{ text: "Reason" }, { text: event.detail.reason }],
+                    [{ text: "Event status" }, { text: event.detail.eventStatus }],
+                    [{ text: "Started on" }, { text: event.detail.startedOn | formatDate if event.detail.startedOn else "Not reported" }],
+                    [{ text: "Confirmed on" }, { text: event.detail.confirmOn | formatDate if event.detail.confirmOn else "Not reported" }],
+                    [{ text: "Ended on" }, { text: event.detail.endedOn | formatDate if event.detail.endedOn else "Not reported" }],
+                    [{ text: "Report status" }, { text: event.detail.reportStatus }],
+                    [{ text: "Report number" }, { text: event.detail.reportNumber | string }]
+                  ]
+                }) }}
+
+                {% if event.detail.outbreaks.length %}
+                  {% set outbreakRows = [] %}
+                  {% for outbreak in event.detail.outbreaks %}
+                    {% set noop = outbreakRows.push([
+                      { text: outbreak.adminDivision },
+                      { text: outbreak.location },
+                      { text: outbreak.startDate | formatDate if outbreak.startDate else "Not reported" },
+                      { text: outbreak.endDate | formatDate if outbreak.endDate else "Not reported" },
+                      { text: outbreak.coordinates }
+                    ]) %}
+                  {% endfor %}
+                  <h3 class="govuk-heading-s">Outbreaks</h3>
+                  {{ govukTable({
+                    attributes: { "data-testid": "outbreaks-table" },
+                    head: [
+                      { text: "Admin division" },
+                      { text: "Location" },
+                      { text: "Start date" },
+                      { text: "End date" },
+                      { text: "Coordinates" }
+                    ],
+                    rows: outbreakRows
+                  }) }}
+                {% endif %}
+
+                {% if event.detail.species.length %}
+                  {% set speciesRows = [] %}
+                  {% for species in event.detail.species %}
+                    {% set noop = speciesRows.push([
+                      { text: species.speciesName },
+                      { text: "Yes" if species.isWild else "No" },
+                      { text: species.susceptible },
+                      { text: species.cases },
+                      { text: species.deaths },
+                      { text: species.killed },
+                      { text: species.slaughtered },
+                      { text: species.vaccinated },
+                      { text: species.unit or "Not reported" }
+                    ]) %}
+                  {% endfor %}
+                  <h3 class="govuk-heading-s">Species (cumulative totals)</h3>
+                  {{ govukTable({
+                    attributes: { "data-testid": "species-table" },
+                    head: [
+                      { text: "Species" },
+                      { text: "Wild" },
+                      { text: "Susceptible" },
+                      { text: "Cases" },
+                      { text: "Deaths" },
+                      { text: "Killed" },
+                      { text: "Slaughtered" },
+                      { text: "Vaccinated" },
+                      { text: "Unit" }
+                    ],
+                    rows: speciesRows
+                  }) }}
+                {% endif %}
+
+                <p>
+                  <a class="govuk-link" href="{{ event.provenanceUrl }}" data-testid="provenance-link">
+                    View this event on the WAHIS website
+                  </a>
+                </p>
+              {% endif %}
+            {% endset %}
+
+            {% set accordionItems = (accordionItems.push({
+              heading: { text: event.heading },
+              summary: { text: event.summaryLine.eventStatus + " — " + event.summaryLine.reportType + " — submitted " + (event.summaryLine.submissionDate | formatDate("EEE do MMMM yyyy, HH:mm")) },
+              content: { html: html }
+            }), accordionItems) %}
+          {% endfor %}
+
+          {{ govukAccordion({
+            id: "latest-cases-accordion",
+            attributes: { "data-testid": "latest-cases-accordion" },
+            items: accordionItems
+          }) }}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
