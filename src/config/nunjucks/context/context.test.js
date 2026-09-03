@@ -69,6 +69,11 @@ describe('context and cache', () => {
               current: false,
               text: 'About',
               href: '/about'
+            },
+            {
+              current: false,
+              text: 'Latest cases',
+              href: '/latest-cases'
             }
           ],
           serviceName: 'apha-incubator-frontend-poc',
@@ -158,6 +163,11 @@ describe('context and cache', () => {
               current: false,
               text: 'About',
               href: '/about'
+            },
+            {
+              current: false,
+              text: 'Latest cases',
+              href: '/latest-cases'
             }
           ],
           serviceName: 'apha-incubator-frontend-poc',

@@ -8,6 +8,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const fourHoursMs = 14400000
 const oneWeekMs = 604800000
+const tenMinutesMs = 600000
 
 const isProduction = process.env.NODE_ENV === 'production'
 const isTest = process.env.NODE_ENV === 'test'
@@ -213,6 +214,45 @@ export const config = convict({
       format: String,
       default: 'x-cdp-request-id',
       env: 'TRACING_HEADER'
+    }
+  },
+  wahis: {
+    baseUrl: {
+      doc: 'Base URL of the public WAHIS (World Animal Health Information System) API',
+      format: String,
+      default: 'https://wahis.woah.org/api/v1/pi',
+      env: 'WAHIS_BASE_URL'
+    },
+    language: {
+      doc: 'Language passed to WAHIS API requests',
+      format: String,
+      default: 'en',
+      env: 'WAHIS_LANGUAGE'
+    },
+    timeoutMs: {
+      doc: 'Timeout for a single WAHIS API request in milliseconds',
+      format: Number,
+      nullable: true,
+      default: null,
+      env: 'WAHIS_TIMEOUT_MS'
+    },
+    cacheTtlMs: {
+      doc: 'How long resolved WAHIS scope (geo-regions, disease ids) and latest cases results are cached for, in milliseconds',
+      format: Number,
+      default: tenMinutesMs,
+      env: 'WAHIS_CACHE_TTL_MS'
+    },
+    maxDetailEvents: {
+      doc: 'Maximum number of events to fetch full detail for on the latest cases page',
+      format: Number,
+      default: 25,
+      env: 'WAHIS_MAX_DETAIL_EVENTS'
+    },
+    detailConcurrency: {
+      doc: 'Maximum number of concurrent WAHIS event detail requests',
+      format: Number,
+      default: 5,
+      env: 'WAHIS_DETAIL_CONCURRENCY'
     }
   }
 })

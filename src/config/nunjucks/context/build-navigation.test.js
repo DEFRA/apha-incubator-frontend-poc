@@ -18,6 +18,11 @@ describe('#buildNavigation', () => {
         current: false,
         text: 'About',
         href: '/about'
+      },
+      {
+        current: false,
+        text: 'Latest cases',
+        href: '/latest-cases'
       }
     ])
   })
@@ -33,6 +38,11 @@ describe('#buildNavigation', () => {
         current: false,
         text: 'About',
         href: '/about'
+      },
+      {
+        current: false,
+        text: 'Latest cases',
+        href: '/latest-cases'
       }
     ])
   })
