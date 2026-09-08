@@ -4,7 +4,7 @@
 
 A server-rendered route, `GET /latest-cases`, that recreates **Workflow 4**
 ("Full event extract — report + outbreaks + species table"), scoped to
-**avian influenza events in Europe submitted in the last 24 hours**. It
+**avian influenza events in Europe submitted in the last seven days**. It
 is the first route in this repo to call a live
 third-party API: it fetches directly from WOAH's public, unofficial,
 reverse-engineered WAHIS (World Animal Health Information System) REST API
@@ -38,10 +38,10 @@ step 2 is sufficient for this page.
   (HPAI, poultry), **671** (HPAI, non-poultry/wild birds), **888** (LPAI
   transmissible to humans) and **922** (HPAI, bovines) — verified live
   2026-09-02. Falls back to the same static id list on lookup failure.
-- **"Last 24 hours"** is a true rolling window: `submissionDate` is
+- **"Last seven days"** is a true rolling window: `submissionDate` is
   day-granularity only and compared at midnight, so the request asks for
-  yesterday→tomorrow and a Node-side timestamp cut (`getLatestCases` in
-  `latest-cases-data.js`) then drops anything older than `now - 24h`.
+  seven days ago→tomorrow and a Node-side timestamp cut (`getLatestCases`
+  in `latest-cases-data.js`) then drops anything older than `now - 7d`.
 - **"Alerts"** = WAHIS _events_, keyed on `submissionDate` (when reported),
   not `eventStartDate` (when the outbreak itself started).
 - Results are capped at `wahis.maxDetailEvents` (default 25) detail
@@ -65,7 +65,7 @@ step 2 is sufficient for this page.
 - If the initial `filtered-list` call itself fails, the page still
   renders (200), with a GOV.UK warning banner instead of the accordion —
   a third party being unavailable should not 500 a POC page.
-- The common case is genuinely **zero events** (a 24h avian-influenza
+- The common case is genuinely **zero events** (a seven-day avian-influenza
   Europe window is often empty) — the empty state is a deliberate,
   labelled state, not an error.
 
