@@ -1,5 +1,11 @@
 const notReported = 'Not reported'
 
+const CATEGORY_LABELS = {
+  new_outbreak: 'New outbreak',
+  follow_up_active: 'Follow-up — event ongoing',
+  follow_up_resolved: 'Follow-up — event resolved'
+}
+
 function displayCount(value) {
   return value === null || value === undefined ? notReported : String(value)
 }
@@ -31,7 +37,7 @@ function buildOutbreakRows(outbreaks = []) {
     coordinates:
       outbreak.latitude != null && outbreak.longitude != null
         ? `${outbreak.latitude}, ${outbreak.longitude}`
-        : notReported
+        : 'Not plotted: coordinates not reported'
   }))
 }
 
@@ -56,6 +62,50 @@ function buildSpeciesRows(quantitativeData) {
     vaccinated: displayCount(total.vaccinated),
     unit
   }))
+}
+
+/**
+ * Transforms raw events into a flat array of outbreak records. Each outbreak
+ * carries its parent event's country, disease and eventId. Events without a
+ * detail fetch result (detail === null) are skipped; they contribute no outbreaks.
+ */
+export function buildOutbreakList(events = []) {
+  const outbreaks = []
+
+  for (const event of events) {
+    if (!event.detail) {
+      continue
+    }
+
+    const eventOutbreaks = event.detail.outbreaks ?? []
+    for (const outbreak of eventOutbreaks) {
+      const category = CATEGORY_LABELS[outbreak.category]
+        ? outbreak.category
+        : 'follow_up_active'
+
+      outbreaks.push({
+        outbreakId: outbreak.outbreakId ?? null,
+        eventId: event.summary.eventId ?? null,
+        country: clean(event.summary.country) || notReported,
+        disease: clean(event.summary.disease) || notReported,
+        adminDivision: clean(outbreak.adminDivision) || notReported,
+        location: clean(outbreak.location) || notReported,
+        startDate: outbreak.startDate ?? null,
+        endDate: outbreak.endDate ?? null,
+        latitude: outbreak.latitude ?? null,
+        longitude: outbreak.longitude ?? null,
+        category,
+        categoryLabel: CATEGORY_LABELS[category],
+        plotted: outbreak.latitude != null && outbreak.longitude != null,
+        isCluster: outbreak.isCluster ?? null,
+        clusterCount: outbreak.clusterCount ?? null,
+        locationApprox: outbreak.locationApprox ?? null,
+        provenanceUrl: `https://wahis.woah.org/#/in-review/${event.summary.eventId}`
+      })
+    }
+  }
+
+  return outbreaks
 }
 
 function buildEventSection({ summary, detail, detailError }) {
@@ -104,12 +154,21 @@ export function buildLatestCasesViewModel({
   generatedAt,
   partialFailures
 }) {
+  const outbreaks = buildOutbreakList(events)
+  const plottedCount = outbreaks.filter((o) => o.plotted).length
+  const unplottedCount = outbreaks.length - plottedCount
+
   return {
     generatedAt,
     totalMatched,
     truncated,
     partialFailures,
     hasEvents: events.length > 0,
-    events: events.map(buildEventSection)
+    events: events.map(buildEventSection),
+    outbreaks,
+    outbreakCount: outbreaks.length,
+    plottedCount,
+    unplottedCount,
+    hasOutbreaks: outbreaks.length > 0
   }
 }
