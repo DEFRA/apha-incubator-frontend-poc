@@ -176,7 +176,7 @@ describe('#getLatestCases', () => {
     ])
   })
 
-  test('Should only keep outbreaks introduced by the recent report, regardless of the outbreak\'s own historical startDate', async () => {
+  test("Should only keep outbreaks introduced by the recent report, regardless of the outbreak's own historical startDate", async () => {
     wahisClient.getFilteredEvents.mockResolvedValueOnce({
       list: [eventRow({ eventId: 1, reportId: 185574 })]
     })
@@ -241,7 +241,7 @@ describe('#getLatestCases', () => {
     ])
   })
 
-  test('Should tag an IN report\'s newly introduced outbreak as new_outbreak', async () => {
+  test("Should tag an IN report's newly introduced outbreak as new_outbreak", async () => {
     wahisClient.getFilteredEvents.mockResolvedValueOnce({
       list: [eventRow({ eventId: 1, reportId: 185574, reportType: 'IN' })]
     })
@@ -257,7 +257,7 @@ describe('#getLatestCases', () => {
     ])
   })
 
-  test('Should tag a FUR report\'s updated outbreak as follow_up_active when the event is ongoing', async () => {
+  test("Should tag a FUR report's updated outbreak as follow_up_active when the event is ongoing", async () => {
     wahisClient.getFilteredEvents.mockResolvedValueOnce({
       list: [
         eventRow({
@@ -276,11 +276,15 @@ describe('#getLatestCases', () => {
     const result = await getLatestCases({ now })
 
     expect(result.events[0].detail.outbreaks).toEqual([
-      { outbreakId: 1, lastUpdateReportId: 185574, category: 'follow_up_active' }
+      {
+        outbreakId: 1,
+        lastUpdateReportId: 185574,
+        category: 'follow_up_active'
+      }
     ])
   })
 
-  test('Should tag a FUR report\'s updated outbreak as follow_up_resolved when the event is resolved', async () => {
+  test("Should tag a FUR report's updated outbreak as follow_up_resolved when the event is resolved", async () => {
     wahisClient.getFilteredEvents.mockResolvedValueOnce({
       list: [
         eventRow({
@@ -299,7 +303,11 @@ describe('#getLatestCases', () => {
     const result = await getLatestCases({ now })
 
     expect(result.events[0].detail.outbreaks).toEqual([
-      { outbreakId: 1, lastUpdateReportId: 185574, category: 'follow_up_resolved' }
+      {
+        outbreakId: 1,
+        lastUpdateReportId: 185574,
+        category: 'follow_up_resolved'
+      }
     ])
   })
 
@@ -322,7 +330,11 @@ describe('#getLatestCases', () => {
     const result = await getLatestCases({ now })
 
     expect(result.events[0].detail.outbreaks).toEqual([
-      { outbreakId: 1, lastUpdateReportId: 185574, category: 'follow_up_active' }
+      {
+        outbreakId: 1,
+        lastUpdateReportId: 185574,
+        category: 'follow_up_active'
+      }
     ])
   })
 
@@ -345,7 +357,11 @@ describe('#getLatestCases', () => {
     const result = await getLatestCases({ now })
 
     expect(result.events[0].detail.outbreaks).toEqual([
-      { outbreakId: 1, lastUpdateReportId: 185574, category: 'follow_up_active' }
+      {
+        outbreakId: 1,
+        lastUpdateReportId: 185574,
+        category: 'follow_up_active'
+      }
     ])
   })
 

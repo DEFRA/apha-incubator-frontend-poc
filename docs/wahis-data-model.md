@@ -127,26 +127,26 @@ erDiagram
 
 ## Identifier cheat-sheet
 
-| ID | Meaning | Scope |
-|---|---|---|
-| `eventId` | The disease occurrence (country + disease + timeframe) | Top-level, long-lived |
-| `reportId` | One dated submission/version of an event | Belongs to exactly one event |
-| `previousReportId` | Link to the prior version of the same event | Forms a version chain |
-| `outbreakId` | One affected location/premises | Declared/updated by a report; unique in practice as `eventId+outbreakId` |
-| `outbreakQuantitiesId` | One species' count row within an outbreak | Belongs to exactly one outbreak |
-| `areaId` | Country or admin-division node | Shared reference data, hierarchical |
+| ID                     | Meaning                                                | Scope                                                                    |
+| ---------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------ |
+| `eventId`              | The disease occurrence (country + disease + timeframe) | Top-level, long-lived                                                    |
+| `reportId`             | One dated submission/version of an event               | Belongs to exactly one event                                             |
+| `previousReportId`     | Link to the prior version of the same event            | Forms a version chain                                                    |
+| `outbreakId`           | One affected location/premises                         | Declared/updated by a report; unique in practice as `eventId+outbreakId` |
+| `outbreakQuantitiesId` | One species' count row within an outbreak              | Belongs to exactly one outbreak                                          |
+| `areaId`               | Country or admin-division node                         | Shared reference data, hierarchical                                      |
 
 ## Endpoints that expose these relationships
 
-| Endpoint | Relationship shown |
-|---|---|
-| `pi/event/filtered-list` | Event ⨯ Report summary rows (`eventId` + `reportId` per row) |
-| `pi/event/{eventId}/report-evolution` | All Report versions for one Event |
-| `pi/review/{report\|event}/{id}/all-information` | Event + Report + Outbreaks[] in one payload |
-| `pi/review/{report\|event}/{id}/outbreaks` | Outbreak list for a Report/Event |
-| `pi/review/report/{reportId}/outbreak/{outbreakId}/all-information` | One Outbreak's full detail (admin divisions, species quantities) |
-| `pi/map-data/outbreaks-by-report-id` | Outbreak ⨯ Event (`outbreakId` + `eventId`) with lat/long, for one report |
-| `pi/map-data/outbreaks-from-event-ids` | Outbreak ⨯ Event for a set of events |
+| Endpoint                                                            | Relationship shown                                                        |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `pi/event/filtered-list`                                            | Event ⨯ Report summary rows (`eventId` + `reportId` per row)              |
+| `pi/event/{eventId}/report-evolution`                               | All Report versions for one Event                                         |
+| `pi/review/{report\|event}/{id}/all-information`                    | Event + Report + Outbreaks[] in one payload                               |
+| `pi/review/{report\|event}/{id}/outbreaks`                          | Outbreak list for a Report/Event                                          |
+| `pi/review/report/{reportId}/outbreak/{outbreakId}/all-information` | One Outbreak's full detail (admin divisions, species quantities)          |
+| `pi/map-data/outbreaks-by-report-id`                                | Outbreak ⨯ Event (`outbreakId` + `eventId`) with lat/long, for one report |
+| `pi/map-data/outbreaks-from-event-ids`                              | Outbreak ⨯ Event for a set of events                                      |
 
 ## Open gaps / caveats
 
