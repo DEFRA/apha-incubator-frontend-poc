@@ -97,3 +97,13 @@ export function getFilteredEvents(body, options) {
 export function getEventAllInformation(eventId, options) {
   return wahisRequest(`/review/event/${eventId}/all-information`, options)
 }
+
+/**
+ * `GET pi/review/report/{reportId}/all-information` — full validated report
+ * detail, scoped to a single report rather than an event's current latest
+ * state. Used to identify exactly the outbreaks introduced by a specific
+ * report, regardless of what has happened to the event since.
+ */
+export function getReportAllInformation(reportId, options) {
+  return wahisRequest(`/review/report/${reportId}/all-information`, options)
+}

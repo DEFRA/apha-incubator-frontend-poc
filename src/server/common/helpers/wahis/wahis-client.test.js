@@ -6,7 +6,8 @@ import {
   getEventAllInformation,
   getFilteredEvents,
   getFirstLevelDiseases,
-  getGeoRegions
+  getGeoRegions,
+  getReportAllInformation
 } from './wahis-client.js'
 
 const fetchMock = createFetchMock(vi)
@@ -68,6 +69,18 @@ describe('#wahis-client', () => {
       expect.objectContaining({ method: 'GET' })
     )
     expect(result).toEqual({ event: { eventId: 7750 } })
+  })
+
+  test('getReportAllInformation requests review/report/{id}/all-information', async () => {
+    fetchMock.mockResponseOnce(JSON.stringify({ report: { reportId: 185574 } }))
+
+    const result = await getReportAllInformation(185574)
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${config.get('wahis.baseUrl')}/review/report/185574/all-information?language=en`,
+      expect.objectContaining({ method: 'GET' })
+    )
+    expect(result).toEqual({ report: { reportId: 185574 } })
   })
 
   test('Should throw a badGateway Boom error for a non-2xx response', async () => {

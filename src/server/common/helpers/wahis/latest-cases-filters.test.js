@@ -16,11 +16,11 @@ vi.mock('./wahis-client.js', () => ({
 }))
 
 describe('#buildSubmissionDateWindow', () => {
-  test('Should return the day before and the day after "now", per the exclusive-to boundary rule', () => {
+  test('Should return seven days before and the day after "now"', () => {
     const now = new Date('2026-09-02T14:00:00.000Z')
 
     expect(buildSubmissionDateWindow(now)).toEqual({
-      from: '2026-09-01',
+      from: '2026-08-26',
       to: '2026-09-03'
     })
   })
