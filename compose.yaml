@@ -1,8 +1,6 @@
 services:
   floci:
     image: hectorvent/floci:latest-aws
-    ports:
-      - '4566:4566'
     env_file:
       - 'compose/aws.env'
     environment:
@@ -14,8 +12,6 @@ services:
 
   redis:
     image: redis:7.2.3-alpine3.18
-    ports:
-      - '6379:6379'
     networks:
       - cdp-tenant
 
@@ -23,8 +19,6 @@ services:
     image: mongo:7.0.28
     networks:
       - cdp-tenant
-    ports:
-      - '27017:27017'
     volumes:
       - ./compose/mongo:/docker-entrypoint-initdb.d:ro
       - mongodb-data:/data
@@ -39,8 +33,6 @@ services:
 
   apha-incubator-frontend-poc:
     build: ./
-    ports:
-      - '3000:3000'
     links:
       - 'floci:floci'
       - 'redis:redis'
@@ -61,29 +53,6 @@ services:
       REDIS_TLS: false
     networks:
       - cdp-tenant
-
-  # your-backend:
-  #   image: defradigital/your-backend:${YOUR_BACKEND_VERSION:-latest}
-  #   ports:
-  #     - '3555:3555'
-  #   links:
-  #     - 'foci:floci'
-  #     - 'mongodb:mongodb'
-  #   depends_on:
-  #     floci:
-  #       condition: service_healthy
-  #     mongodb:
-  #       condition: service_started
-  #   env_file:
-  #     - 'compose/aws.env'
-  #   environment:
-  #     PORT: 3001
-  #     NODE_ENV: development
-  #     MONGO_URI: mongodb://mongodb:27017/
-  #   networks:
-  #     - cdp-tenant
-
-################################################################################
 
 volumes:
   mongodb-data:

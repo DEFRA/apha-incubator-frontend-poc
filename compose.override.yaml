@@ -1,7 +1,19 @@
 services:
+  floci:
+    ports:
+      - '4566:4566'
+  redis:
+    ports:
+      - '6379:6379'
+  mongodb:
+    ports:
+      - '27017:27017'
   apha-incubator-frontend-poc:
     build:
       target: development
+    ports:
+      - '3000:3000'
+      - '9229:9229'
     volumes:
       - ./src:/home/node/src:ro
       - ./package.json:/home/node/package.json:ro
