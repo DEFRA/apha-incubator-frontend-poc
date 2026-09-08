@@ -107,16 +107,16 @@ export async function resolveAvianInfluenzaDiseaseIds({
 }
 
 /**
- * Builds the `submissionDate` filter window for "the last 24 hours".
+ * Builds the `submissionDate` filter window for "the last seven days".
  * `submissionDate` is `yyyy-MM-dd` only and compared at midnight
- * by the upstream API, so a true rolling 24h window can't be expressed
+ * by the upstream API, so a true rolling seven-day window can't be expressed
  * server-side: `to` must be the day *after* today, and the caller is
  * expected to apply a Node-side timestamp cut against `now` (see
  * `latest-cases-data.js`).
  */
 export function buildSubmissionDateWindow(now = new Date()) {
   return {
-    from: format(addDays(now, -1), dateFormat),
+    from: format(addDays(now, -7), dateFormat),
     to: format(addDays(now, 1), dateFormat)
   }
 }
