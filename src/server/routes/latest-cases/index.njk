@@ -49,9 +49,63 @@
           }) }}
         {% endif %}
 
+        <div class="govuk-grid-row">
+          <div class="govuk-grid-column-full">
+            <style>
+              #latest-cases-map {
+                width: 100%;
+                height: 500px;
+                border: 1px solid #b1b4b6;
+              }
+            </style>
+            {% if hasOutbreaks %}
+              <p class="govuk-hint" data-testid="map-coverage">
+                Showing {{ plottedCount }} of {{ outbreakCount }} outbreaks on the map.
+                {% if unplottedCount %}
+                  {{ unplottedCount }} outbreak(s) have no reported coordinates and appear
+                  in the table only.
+                {% endif %}
+              </p>
+            {% endif %}
+            <div data-testid="latest-cases-map">
+              <div id="latest-cases-map"></div>
+            </div>
+          </div>
+        </div>
+        <script type="application/json" id="outbreaks-geojson">{{ outbreaksGeoJson | toJsonScript | safe }}</script>
+
+        {% if hasOutbreaks %}
+          <h2 class="govuk-heading-m">Outbreaks</h2>
+          {% set outbreakListRows = [] %}
+          {% for outbreak in outbreaks %}
+            {% set noop = outbreakListRows.push([
+              { text: outbreak.country },
+              { text: outbreak.adminDivision },
+              { text: outbreak.location },
+              { text: outbreak.categoryLabel },
+              { text: outbreak.startDate | formatDate if outbreak.startDate else "Not reported" },
+              { text: "Yes" if outbreak.plotted else "No coordinates reported" }
+            ]) %}
+          {% endfor %}
+          {{ govukTable({
+            attributes: { "data-testid": "outbreak-list-table" },
+            caption: "Every outbreak in this window. The map shows the same records.",
+            captionClasses: "govuk-table__caption--s",
+            head: [
+              { text: "Country" },
+              { text: "Admin division" },
+              { text: "Location" },
+              { text: "Category" },
+              { text: "Start date" },
+              { text: "On map" }
+            ],
+            rows: outbreakListRows
+          }) }}
+        {% endif %}
+
         {% if not upstreamError and not hasEvents %}
           <p data-testid="empty-state">
-            No avian influenza alerts for Europe in the last 24 hours.
+            No avian influenza alerts for Europe in the last seven days.
           </p>
         {% elif hasEvents %}
           {% set accordionItems = [] %}
@@ -150,6 +204,7 @@
             }), accordionItems) %}
           {% endfor %}
 
+          <h2 class="govuk-heading-m">Event detail</h2>
           {{ govukAccordion({
             id: "latest-cases-accordion",
             attributes: { "data-testid": "latest-cases-accordion" },
@@ -160,4 +215,9 @@
     </div>
   </div>
 
+{% endblock %}
+
+{% block bodyEnd %}
+  {{ super() }}
+  <script type="module" src="{{ getAssetPath('src/client/javascripts/latest-cases-map.js') }}"></script>
 {% endblock %}

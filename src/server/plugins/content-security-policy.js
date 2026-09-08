@@ -11,27 +11,35 @@ const contentSecurityPolicy = {
     // https://frontend.design-system.service.gov.uk/import-javascript/#if-our-inline-javascript-snippet-is-blocked-by-a-content-security-policy
     defaultSrc: ['self'],
     fontSrc: ['self', 'data:'],
-    connectSrc: ['self', 'wss', 'data:'],
+    connectSrc: [
+      'self',
+      'wss',
+      'data:',
+      'https://tiles.openfreemap.org',
+      // Vite dev server HMR websocket
+      'ws://localhost:24678'
+    ],
     mediaSrc: ['self'],
-    // Plotly.js creates an empty <style> element via document.createElement('style')
-    // + document.head.appendChild, then populates it using CSSStyleSheet.insertRule.
-    // The hash is computed over the element's text content *at insertion time* (empty
-    // string ""). insertRule calls after insertion are not subject to style-src CSP.
-    // This hash is pinned to plotly.js-basic-dist-min@4.0.0, which creates exactly one
-    // style element with empty initial text. Update if Plotly ever switches to
-    // textContent-based injection or changes the number of style elements it creates.
-    // sha256 of "": openssl dgst -sha256 -binary <(echo -n "") | base64
-    styleSrc: ['self', "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='"],
+    // 'unsafe-inline' is required as MapLibre GL (used to render the latest
+    // cases map) applies inline styles dynamically via JS. Per the CSP spec,
+    // 'unsafe-inline' is ignored by browsers when a hash-source is also
+    // present in the same directive, so the previous Plotly-specific
+    // sha256 hash (for its empty <style> element, populated via
+    // CSSStyleSheet.insertRule) had to be dropped in favour of
+    // 'unsafe-inline', which also covers that case.
+    styleSrc: ['self', "'unsafe-inline'"],
     scriptSrc: [
       'self',
       "'sha256-GUQ5ad8JK5KmEWmROf3LZd9ge94daqNvd8xy9YS1iDw='"
     ],
-    imgSrc: ['self', 'data:'],
+    imgSrc: ['self', 'data:', 'https://tiles.openfreemap.org'],
     frameSrc: ['self', 'data:'],
     objectSrc: ['none'],
     frameAncestors: ['none'],
     formAction: ['self'],
     manifestSrc: ['self'],
+    // MapLibre GL runs its tile parsing in a worker loaded from a blob URL
+    workerSrc: ['self', 'blob:'],
     generateNonces: false
   }
 }
