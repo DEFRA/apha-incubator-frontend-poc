@@ -80,6 +80,24 @@ step 2 is sufficient for this page.
 - A `null` count renders as "Not reported"; a `0` renders as `0`. These are
   semantically different in WAHIS data and must not be conflated.
 
+## List and map consistency
+
+`buildOutbreakList` is the single canonical source for both the outbreak
+table and the map. The controller derives the GeoJSON from
+`viewModel.outbreaks`, never from the raw `events` array.
+
+The table shows all outbreaks in the seven-day window. The map shows only
+outbreaks with reported coordinates (`plotted === true`). WAHIS latitude and
+longitude fields are nullable; coordinates are never invented or geocoded.
+
+The page caption reports the difference using three counts: `plottedCount`
+(outbreaks on the map), `outbreakCount` (all outbreaks in the table), and
+`unplottedCount` (outbreak records without coordinates).
+
+Category labels (`New outbreak`, `Follow-up — event ongoing`,
+`Follow-up — event resolved`) are shared between the table's category column
+and the map's info panel, ensuring identical wording across both views.
+
 ## Configuration
 
 All new config lives under the `wahis` key in `src/config/config.js`:
