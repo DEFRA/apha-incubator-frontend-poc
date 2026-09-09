@@ -23,7 +23,7 @@ and they need different responses:
    (follow-up) reports that update existing outbreaks' counts/status
    without adding new outbreak locations. If, in the current window,
    none of the matched events happens to have introduced a genuinely new
-   outbreak, an empty map is the *correct* result, not a bug — but the
+   outbreak, an empty map is the _correct_ result, not a bug — but the
    page gives no way to tell "correctly empty" apart from "broken".
 2. **A robustness gap in how "this report's new outbreaks" is
    identified**, specifically:
@@ -80,6 +80,7 @@ keyed by `row.reportId`) instead of
 keyed by `row.eventId`).
 
 Reasons:
+
 - It fetches the exact snapshot as of the specific report in the 24h
   window, rather than "whatever the event's current latest validated
   state is" — removes any dependency on the event not having moved on
@@ -94,6 +95,7 @@ Reasons:
   narrowed to "new only" (confirm in Step 0).
 
 Changes:
+
 - `src/server/common/helpers/wahis/wahis-client.js`: add
   `getReportAllInformation(reportId, options)` calling
   `GET /review/report/{reportId}/all-information` (mirror
@@ -114,6 +116,7 @@ Changes:
 
 In `getLatestCases()`, after building `events`, compute and log (at
 `info` level, not `warn`, since zero is an expected outcome some days):
+
 - `totalMatchedEvents` (already have `totalMatched`)
 - `eventsWithNewOutbreaks` — count of events where
   `detail.outbreaks.length > 0` after filtering

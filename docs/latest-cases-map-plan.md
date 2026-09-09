@@ -18,7 +18,7 @@ any other source.
 ```yaml
 latitude: { type: number, format: double, nullable: true }
 longitude: { type: number, format: double, nullable: true }
-locationApprox: { type: boolean }   # true = coordinates are approximate
+locationApprox: { type: boolean } # true = coordinates are approximate
 location: { type: string, nullable: true }
 adminDivision: { type: string, nullable: true }
 isCluster: { type: boolean }
@@ -34,6 +34,7 @@ handle `null`/`undefined` on both fields before use.
 ## Reference implementation to copy the pattern from
 
 `apha-incubator-maps-poc`:
+
 - `src/client/javascripts/map.js` — `InteractiveMap` + `maplibreProvider` +
   `createDatasetsPlugin` (GeoJSON dataset) + `createInteractPlugin`
   (click-to-select, info panel).
