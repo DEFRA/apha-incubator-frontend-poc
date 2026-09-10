@@ -42,7 +42,9 @@ function maplibreWorkerAssets() {
           'Content-Type',
           fileName.endsWith('.map') ? 'application/json' : 'text/javascript'
         )
-        createReadStream(filePath).pipe(res)
+        const stream = createReadStream(filePath)
+        stream.on('error', (err) => next(err))
+        stream.pipe(res)
       })
     },
     generateBundle() {
