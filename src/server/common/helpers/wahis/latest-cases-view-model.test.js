@@ -367,6 +367,45 @@ describe('#buildOutbreakList', () => {
     expect(outbreaks[2].plotted).toBe(false)
   })
 
+  test('Should set plotted to false for non-finite or out-of-range coordinates', () => {
+    const outbreaks = buildOutbreakList([
+      baseEvent({
+        detail: {
+          outbreaks: [
+            {
+              outbreakId: 1,
+              location: 'NaN pair',
+              latitude: 'not-a-number',
+              longitude: 13.4
+            },
+            {
+              outbreakId: 2,
+              location: 'Infinite latitude',
+              latitude: Infinity,
+              longitude: 13.4
+            },
+            {
+              outbreakId: 3,
+              location: 'Out of range latitude',
+              latitude: 152.5,
+              longitude: 13.4
+            },
+            {
+              outbreakId: 4,
+              location: 'Out of range longitude',
+              latitude: 52.5,
+              longitude: 213.4
+            }
+          ]
+        }
+      })
+    ])
+
+    expect(outbreaks.every((outbreak) => outbreak.plotted === false)).toBe(
+      true
+    )
+  })
+
   test('Should map each category to its display label', () => {
     const outbreaks = buildOutbreakList([
       baseEvent({

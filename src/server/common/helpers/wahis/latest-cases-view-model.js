@@ -28,16 +28,41 @@ function translationOf(catalogValue) {
   )
 }
 
+/**
+ * Confirms a latitude/longitude pair is safe to plot. WAHIS sometimes
+ * reports non-finite or out-of-range values (e.g. `NaN`, `Infinity`,
+ * a string that fails numeric conversion). Passing these through to
+ * MapLibre corrupts its internal bounds/padding calculations and crashes
+ * the map, so outbreaks with unusable coordinates are marked not plotted
+ * instead.
+ */
+function hasValidCoordinates(latitude, longitude) {
+  if (latitude == null || longitude == null) {
+    return false
+  }
+
+  const lat = Number(latitude)
+  const lng = Number(longitude)
+
+  return (
+    Number.isFinite(lat) &&
+    Number.isFinite(lng) &&
+    lat >= -90 &&
+    lat <= 90 &&
+    lng >= -180 &&
+    lng <= 180
+  )
+}
+
 function buildOutbreakRows(outbreaks = []) {
   return outbreaks.map((outbreak) => ({
     adminDivision: clean(outbreak.adminDivision) || notReported,
     location: clean(outbreak.location) || notReported,
     startDate: outbreak.startDate,
     endDate: outbreak.endDate,
-    coordinates:
-      outbreak.latitude != null && outbreak.longitude != null
-        ? `${outbreak.latitude}, ${outbreak.longitude}`
-        : 'Not plotted: coordinates not reported'
+    coordinates: hasValidCoordinates(outbreak.latitude, outbreak.longitude)
+      ? `${outbreak.latitude}, ${outbreak.longitude}`
+      : 'Not plotted: coordinates not reported'
   }))
 }
 
@@ -96,7 +121,7 @@ export function buildOutbreakList(events = []) {
         longitude: outbreak.longitude ?? null,
         category,
         categoryLabel: CATEGORY_LABELS[category],
-        plotted: outbreak.latitude != null && outbreak.longitude != null,
+        plotted: hasValidCoordinates(outbreak.latitude, outbreak.longitude),
         isCluster: outbreak.isCluster ?? null,
         clusterCount: outbreak.clusterCount ?? null,
         locationApprox: outbreak.locationApprox ?? null,
