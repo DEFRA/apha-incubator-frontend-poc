@@ -23,26 +23,30 @@ const maplibreWorkerFiles = [
   'maplibre-gl-shared.mjs.map'
 ]
 
-function maplibreWorkerAssets() {
+export function maplibreWorkerAssets({ createStream = createReadStream } = {}) {
   return {
     name: 'maplibre-worker-assets',
     configureServer(server) {
-      server.middlewares.use(
-        `/${maplibreWorkerVendorPath}`,
-        (req, res, next) => {
-          const fileName = req.url.split('?')[0].replace(/^\//, '')
-          const filePath = join(maplibreDistDir, fileName)
-          if (
-            !maplibreWorkerFiles.includes(fileName) ||
-            !existsSync(filePath)
-          ) {
-            next()
-            return
-          }
-          res.setHeader('Content-Type', 'text/javascript')
-          createReadStream(filePath).pipe(res)
+      server.middlewares.use(`/${maplibreWorkerVendorPath}`, (req, res, next) => {
+        const requestPath = req.url?.split(/[?#]/)[0] ?? ''
+        const fileName = requestPath.replace(/^\//, '')
+        if (!fileName || !maplibreWorkerFiles.includes(fileName)) {
+          next()
+          return
         }
-      )
+        const filePath = join(maplibreDistDir, fileName)
+        if (!existsSync(filePath)) {
+          next()
+          return
+        }
+        res.setHeader(
+          'Content-Type',
+          fileName.endsWith('.map') ? 'application/json' : 'text/javascript'
+        )
+        const stream = createStream(filePath)
+        stream.on('error', (err) => next(err))
+        stream.pipe(res)
+      })
     },
     generateBundle() {
       for (const file of maplibreWorkerFiles) {

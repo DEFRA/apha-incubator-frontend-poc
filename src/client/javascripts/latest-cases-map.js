@@ -14,7 +14,6 @@ import InteractiveMap from '@defra/interactive-map'
 import maplibreProvider from '@defra/interactive-map/providers/maplibre'
 import createDatasetsPlugin from '@defra/interactive-map/plugins/datasets'
 import createInteractPlugin from '@defra/interactive-map/plugins/interact'
-
 import '@defra/interactive-map/css'
 
 // Served from a fixed, unhashed vendor path (see vite.config.js
