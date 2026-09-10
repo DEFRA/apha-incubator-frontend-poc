@@ -14,9 +14,13 @@ import InteractiveMap from '@defra/interactive-map'
 import maplibreProvider from '@defra/interactive-map/providers/maplibre'
 import createDatasetsPlugin from '@defra/interactive-map/plugins/datasets'
 import createInteractPlugin from '@defra/interactive-map/plugins/interact'
-import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
 
 import '@defra/interactive-map/css'
+
+// Served from a fixed, unhashed vendor path (see vite.config.js
+// `maplibreWorkerAssets` plugin) so the worker's hardcoded relative import of
+// `maplibre-gl-shared.mjs` keeps resolving in both dev and production builds.
+const maplibreWorkerUrl = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/vendor/maplibre-gl/maplibre-gl-worker.mjs`
 
 const NEW_OUTBREAK_LAYER_ID = 'latest-cases-new-outbreaks'
 const FOLLOW_UP_ACTIVE_LAYER_ID = 'latest-cases-follow-up-active'
