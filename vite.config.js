@@ -29,8 +29,12 @@ function maplibreWorkerAssets() {
     configureServer(server) {
       server.middlewares.use(`/${maplibreWorkerVendorPath}`, (req, res, next) => {
         const fileName = req.url.split('?')[0].replace(/^\//, '')
+        if (!maplibreWorkerFiles.includes(fileName)) {
+          next()
+          return
+        }
         const filePath = join(maplibreDistDir, fileName)
-        if (!maplibreWorkerFiles.includes(fileName) || !existsSync(filePath)) {
+        if (!existsSync(filePath)) {
           next()
           return
         }
