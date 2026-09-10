@@ -27,16 +27,22 @@ function maplibreWorkerAssets() {
   return {
     name: 'maplibre-worker-assets',
     configureServer(server) {
-      server.middlewares.use(`/${maplibreWorkerVendorPath}`, (req, res, next) => {
-        const fileName = req.url.split('?')[0].replace(/^\//, '')
-        const filePath = join(maplibreDistDir, fileName)
-        if (!maplibreWorkerFiles.includes(fileName) || !existsSync(filePath)) {
-          next()
-          return
+      server.middlewares.use(
+        `/${maplibreWorkerVendorPath}`,
+        (req, res, next) => {
+          const fileName = req.url.split('?')[0].replace(/^\//, '')
+          const filePath = join(maplibreDistDir, fileName)
+          if (
+            !maplibreWorkerFiles.includes(fileName) ||
+            !existsSync(filePath)
+          ) {
+            next()
+            return
+          }
+          res.setHeader('Content-Type', 'text/javascript')
+          createReadStream(filePath).pipe(res)
         }
-        res.setHeader('Content-Type', 'text/javascript')
-        createReadStream(filePath).pipe(res)
-      })
+      )
     },
     generateBundle() {
       for (const file of maplibreWorkerFiles) {
