@@ -3,7 +3,9 @@ import config, { maplibreWorkerAssets } from './vite.config.js'
 
 describe('vite config', () => {
   test('Should emit the expected maplibre worker vendor assets', () => {
-    const plugin = config.plugins.find((p) => p.name === 'maplibre-worker-assets')
+    const plugin = config.plugins.find(
+      (p) => p.name === 'maplibre-worker-assets'
+    )
     const emitFile = vi.fn()
 
     plugin.generateBundle.call({ emitFile })
