@@ -34,7 +34,10 @@ function maplibreWorkerAssets() {
           next()
           return
         }
-        res.setHeader('Content-Type', 'text/javascript')
+        res.setHeader(
+          'Content-Type',
+          fileName.endsWith('.map') ? 'application/json' : 'text/javascript'
+        )
         createReadStream(filePath).pipe(res)
       })
     },
