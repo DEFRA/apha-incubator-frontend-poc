@@ -401,9 +401,7 @@ describe('#buildOutbreakList', () => {
       })
     ])
 
-    expect(outbreaks.every((outbreak) => outbreak.plotted === false)).toBe(
-      true
-    )
+    expect(outbreaks.every((outbreak) => outbreak.plotted === false)).toBe(true)
   })
 
   test('Should map each category to its display label', () => {
