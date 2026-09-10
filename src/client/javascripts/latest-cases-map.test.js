@@ -6,6 +6,7 @@ const mockAddPanel = vi.fn()
 const mockShowPanel = vi.fn()
 const mockHidePanel = vi.fn()
 const mockInteractiveMapConstructor = vi.fn()
+const mockMaplibreProvider = vi.fn(() => 'maplibreProvider')
 const mockCreateDatasetsPlugin = vi.fn(() => 'datasetsPlugin')
 const mockCreateInteractPlugin = vi.fn(() => ({
   enable: vi.fn(),
@@ -49,7 +50,7 @@ vi.mock('@defra/interactive-map', () => ({
   }
 }))
 vi.mock('@defra/interactive-map/providers/maplibre', () => ({
-  default: vi.fn(() => 'maplibreProvider')
+  default: (...args) => mockMaplibreProvider(...args)
 }))
 vi.mock('@defra/interactive-map/plugins/datasets', () => ({
   default: (...args) => mockCreateDatasetsPlugin(...args)
@@ -95,6 +96,9 @@ describe('#latestCasesMap', () => {
         ]
       })
     )
+    expect(mockMaplibreProvider).toHaveBeenCalledWith({
+      workerUrl: expect.stringContaining('maplibre-gl-worker')
+    })
     expect(mockCreateDatasetsPlugin).toHaveBeenCalledWith(
       expect.objectContaining({
         datasets: expect.arrayContaining([
