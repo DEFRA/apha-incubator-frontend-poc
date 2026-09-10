@@ -25,14 +25,18 @@ describe('vite config', () => {
     const middleware = use.mock.calls[0][1]
 
     const setHeader = vi.fn()
+    const next = vi.fn()
 
-    middleware({ url: '/../package.json' }, { setHeader }, vi.fn())
+    middleware({}, { setHeader }, next)
+    expect(createStream).not.toHaveBeenCalled()
+
+    middleware({ url: '/../package.json' }, { setHeader }, next)
     expect(createStream).not.toHaveBeenCalled()
 
     middleware(
       { url: '/maplibre-gl-worker.mjs.map' },
       { setHeader },
-      vi.fn()
+      next
     )
     expect(setHeader).toHaveBeenCalledWith('Content-Type', 'application/json')
     expect(createStream).toHaveBeenCalledTimes(1)
