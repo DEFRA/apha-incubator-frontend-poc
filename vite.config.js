@@ -23,7 +23,7 @@ const maplibreWorkerFiles = [
   'maplibre-gl-shared.mjs.map'
 ]
 
-function maplibreWorkerAssets() {
+export function maplibreWorkerAssets({ createStream = createReadStream } = {}) {
   return {
     name: 'maplibre-worker-assets',
     configureServer(server) {
@@ -42,7 +42,7 @@ function maplibreWorkerAssets() {
           'Content-Type',
           fileName.endsWith('.map') ? 'application/json' : 'text/javascript'
         )
-        const stream = createReadStream(filePath)
+        const stream = createStream(filePath)
         stream.on('error', (err) => next(err))
         stream.pipe(res)
       })
