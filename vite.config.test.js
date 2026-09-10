@@ -34,7 +34,7 @@ describe('vite config', () => {
     expect(createStream).not.toHaveBeenCalled()
 
     middleware(
-      { url: '/maplibre-gl-worker.mjs.map' },
+      { url: '/maplibre-gl-worker.mjs.map#sourceURL' },
       { setHeader },
       next
     )

@@ -28,7 +28,7 @@ export function maplibreWorkerAssets({ createStream = createReadStream } = {}) {
     name: 'maplibre-worker-assets',
     configureServer(server) {
       server.middlewares.use(`/${maplibreWorkerVendorPath}`, (req, res, next) => {
-        const requestPath = req.url?.split('?')[0] ?? ''
+        const requestPath = req.url?.split(/[?#]/)[0] ?? ''
         const fileName = requestPath.replace(/^\//, '')
         if (!fileName || !maplibreWorkerFiles.includes(fileName)) {
           next()
