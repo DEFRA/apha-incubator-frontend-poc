@@ -38,6 +38,9 @@ export default defineConfig({
     },
     lightningcss: { errorRecovery: true }
   },
+  optimizeDeps: {
+    exclude: ['maplibre-gl']
+  },
   // Dev server
   server: {}
 })
