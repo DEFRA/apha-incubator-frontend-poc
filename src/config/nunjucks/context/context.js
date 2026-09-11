@@ -14,6 +14,34 @@ const manifestPath = path.join(
 
 let viteManifest
 
+function collectCss(entry, visited = new Set()) {
+  if (!viteManifest?.[entry]) {
+    return []
+  }
+
+  if (visited.has(entry)) {
+    return []
+  }
+
+  visited.add(entry)
+
+  const manifest = viteManifest[entry]
+  const css = [...(manifest.css ?? [])]
+
+  if (manifest.imports) {
+    for (const importEntry of manifest.imports) {
+      const importedCss = collectCss(importEntry, visited)
+      for (const cssFile of importedCss) {
+        if (!css.includes(cssFile)) {
+          css.push(cssFile)
+        }
+      }
+    }
+  }
+
+  return css
+}
+
 export function context(request) {
   if (config.get('isProduction') && !viteManifest) {
     try {
@@ -36,6 +64,13 @@ export function context(request) {
 
       const viteAssetPath = viteManifest?.[asset]?.file
       return `${assetPath}/${viteAssetPath ?? asset}`
+    },
+    getAssetCss(entry) {
+      if (!config.get('isProduction')) {
+        return []
+      }
+
+      return collectCss(entry).map((css) => `${assetPath}/${css}`)
     }
   }
 }

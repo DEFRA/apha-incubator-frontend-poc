@@ -193,3 +193,4 @@ frontend-poc map must render server-supplied, real outbreak data.
    tile requests or worker creation.
 5. Confirm GeoJSON coordinate order is `[longitude, latitude]` by
    spot-checking one rendered point against its known real-world location.
+6. For production asset handling, see [`frontend-assets-and-maplibre.md`](./frontend-assets-and-maplibre.md).
