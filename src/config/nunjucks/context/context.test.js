@@ -108,9 +108,7 @@ describe('context and cache', () => {
         })
 
         test('Should return CSS paths for entry with CSS', () => {
-          const css = contextResult.getAssetCss(
-            'stylesheets/application.scss'
-          )
+          const css = contextResult.getAssetCss('stylesheets/application.scss')
           expect(css).toEqual(['/public/assets/application.css'])
         })
       })
