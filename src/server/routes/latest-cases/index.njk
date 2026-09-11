@@ -5,6 +5,13 @@
 {% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
 {% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
 
+{% block head %}
+  {{ super() }}
+  {% for href in getAssetCss('src/client/javascripts/latest-cases-map.js') %}
+    <link href="{{ href }}" rel="stylesheet">
+  {% endfor %}
+{% endblock %}
+
 {% block content %}
   {{ appHeading({
     text: heading,

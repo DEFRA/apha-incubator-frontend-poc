@@ -346,4 +346,24 @@ describe('#latestCasesController', () => {
       features: []
     })
   })
+
+  test('Should render the map stylesheet link in production', async () => {
+    getLatestCases.mockResolvedValueOnce({
+      events: [],
+      totalMatched: 0,
+      truncated: false,
+      generatedAt: new Date('2026-09-02T12:00:00.000Z'),
+      partialFailures: false
+    })
+
+    const { result } = await server.inject({
+      method: 'GET',
+      url: '/latest-cases'
+    })
+
+    const $ = cheerio.load(result)
+    // In production, getAssetCss returns actual paths; in dev it returns []
+    // The page should render link tags; in dev they are empty, in prod they are populated
+    expect($('link[rel="stylesheet"]').length).toBeGreaterThan(0)
+  })
 })

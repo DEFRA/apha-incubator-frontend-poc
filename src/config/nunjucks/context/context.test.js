@@ -45,10 +45,13 @@ describe('context and cache', () => {
       })
 
       beforeEach(() => {
-        // Return JSON string
+        // Return JSON string with both entries and one with CSS
         mockReadFileSync.mockReturnValue(`{
         "application.js": "javascripts/application.js",
-        "stylesheets/application.scss": "stylesheets/application.css"
+        "stylesheets/application.scss": {
+          "file": "stylesheets/application.css",
+          "css": ["assets/application.css"]
+        }
       }`)
 
         contextResult = contextImport.context(mockRequest)
@@ -59,6 +62,7 @@ describe('context and cache', () => {
           assetPath: '/public/assets',
           breadcrumbs: [],
           getAssetPath: expect.any(Function),
+          getAssetCss: expect.any(Function),
           navigation: [
             {
               current: true,
@@ -94,6 +98,18 @@ describe('context and cache', () => {
           expect(contextResult.getAssetPath('an-image.png')).toBe(
             '/public/an-image.png'
           )
+        })
+      })
+
+      describe('getAssetCss()', () => {
+        test('Should return empty array for entry with no CSS', () => {
+          const css = contextResult.getAssetCss('application.js')
+          expect(css).toEqual([])
+        })
+
+        test('Should return CSS paths for entry with CSS', () => {
+          const css = contextResult.getAssetCss('stylesheets/application.scss')
+          expect(css).toEqual(['/public/assets/application.css'])
         })
       })
     })
@@ -153,6 +169,7 @@ describe('context and cache', () => {
           assetPath: '/public/assets',
           breadcrumbs: [],
           getAssetPath: expect.any(Function),
+          getAssetCss: expect.any(Function),
           navigation: [
             {
               current: true,
