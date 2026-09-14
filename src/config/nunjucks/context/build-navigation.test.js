@@ -23,6 +23,11 @@ describe('#buildNavigation', () => {
         current: false,
         text: 'Latest cases',
         href: '/latest-cases'
+      },
+      {
+        current: false,
+        text: 'Esri map',
+        href: '/esri-map'
       }
     ])
   })
@@ -43,6 +48,36 @@ describe('#buildNavigation', () => {
         current: false,
         text: 'Latest cases',
         href: '/latest-cases'
+      },
+      {
+        current: false,
+        text: 'Esri map',
+        href: '/esri-map'
+      }
+    ])
+  })
+
+  test('Should highlight the Esri map link on the Esri map page', () => {
+    expect(buildNavigation(mockRequest({ path: '/esri-map' }))).toEqual([
+      {
+        current: false,
+        text: 'Home',
+        href: '/'
+      },
+      {
+        current: false,
+        text: 'About',
+        href: '/about'
+      },
+      {
+        current: false,
+        text: 'Latest cases',
+        href: '/latest-cases'
+      },
+      {
+        current: true,
+        text: 'Esri map',
+        href: '/esri-map'
       }
     ])
   })

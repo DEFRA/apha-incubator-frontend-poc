@@ -14,6 +14,11 @@ export function buildNavigation(request) {
       text: 'Latest cases',
       href: '/latest-cases',
       current: request?.path === '/latest-cases'
+    },
+    {
+      text: 'Esri map',
+      href: '/esri-map',
+      current: request?.path === '/esri-map'
     }
   ]
 }

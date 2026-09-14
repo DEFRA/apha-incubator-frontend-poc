@@ -78,6 +78,11 @@ describe('context and cache', () => {
               current: false,
               text: 'Latest cases',
               href: '/latest-cases'
+            },
+            {
+              current: false,
+              text: 'Esri map',
+              href: '/esri-map'
             }
           ],
           serviceName: 'apha-incubator-frontend-poc',
@@ -185,6 +190,11 @@ describe('context and cache', () => {
               current: false,
               text: 'Latest cases',
               href: '/latest-cases'
+            },
+            {
+              current: false,
+              text: 'Esri map',
+              href: '/esri-map'
             }
           ],
           serviceName: 'apha-incubator-frontend-poc',
