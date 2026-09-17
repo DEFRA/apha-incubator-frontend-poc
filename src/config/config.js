@@ -254,6 +254,14 @@ export const config = convict({
       default: 5,
       env: 'WAHIS_DETAIL_CONCURRENCY'
     }
+  },
+  esri: {
+    apiUrl: {
+      doc: 'Base URL of the Esri ArcGIS FeatureServer layer for positive wild bird avian influenza findings. Must be set via ESRI_API_URL in .env — no default committed here.',
+      format: String,
+      default: '',
+      env: 'ESRI_API_URL'
+    }
   }
 })
 
