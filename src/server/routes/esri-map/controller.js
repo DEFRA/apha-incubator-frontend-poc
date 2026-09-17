@@ -4,20 +4,11 @@
  * skeleton only. It will display Esri map data rendered with the same
  * `@defra/interactive-map` component used by the other dashboards.
  */
+import { esriMapPresenter } from './presenter.js'
+
 export const esriMapController = {
   handler(_request, h) {
-    return h.view('esri-map/index', {
-      pageTitle: 'Esri map',
-      heading: 'Esri map',
-      breadcrumbs: [
-        {
-          text: 'Home',
-          href: '/'
-        },
-        {
-          text: 'Esri map'
-        }
-      ]
-    })
+    const context = esriMapPresenter()
+    return h.view('esri-map/index', context)
   }
 }
