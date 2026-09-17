@@ -6,6 +6,7 @@ import { dashboardPlotly } from '../routes/dashboard-plotly/index.js'
 import { dashboardChartjs } from '../routes/dashboard-chartjs/index.js'
 import { dashboardD3 } from '../routes/dashboard-d3/index.js'
 import { latestCases } from '../routes/latest-cases/index.js'
+import { esriMap } from '../routes/esri-map/index.js'
 import { health } from '../routes/health/index.js'
 import { serveStaticFiles } from './serve-static-files.js'
 import { config } from '#/config/config.js'
@@ -26,7 +27,8 @@ export const router = {
         dashboardPlotly,
         dashboardChartjs,
         dashboardD3,
-        latestCases
+        latestCases,
+        esriMap
       ])
 
       // Static assets

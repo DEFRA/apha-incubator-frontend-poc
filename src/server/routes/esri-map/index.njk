@@ -1,0 +1,22 @@
+{% extends 'layouts/page.njk' %}
+
+{% block content %}
+  {{ appHeading({
+    text: heading,
+    caption: "apha-incubator-frontend-poc"
+  }) }}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <div class="govuk-body" data-testid="app-page-body">
+        <p data-testid="esri-map-placeholder">
+          Esri map
+        </p>
+        <p>
+          <a class="govuk-link" href="/" data-testid="home-link">Home</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
