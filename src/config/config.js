@@ -257,10 +257,10 @@ export const config = convict({
   },
   esri: {
     apiUrl: {
-      doc: 'Base URL of the Esri ArcGIS FeatureServer layer for positive wild bird avian influenza findings. Must be set via ESRI_API_URL in .env — no default committed here.',
+      doc: 'Base URL of the Esri ArcGIS FeatureServer layer for positive wild bird avian influenza findings. Must be set via ESRI_API_BASE_URL in .env — no default committed here.',
       format: String,
       default: '',
-      env: 'ESRI_API_URL'
+      env: 'ESRI_API_BASE_URL'
     }
   }
 })
