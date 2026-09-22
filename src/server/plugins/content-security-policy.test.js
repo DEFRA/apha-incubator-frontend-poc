@@ -45,4 +45,22 @@ describe('#contentSecurityPolicy', () => {
     expect(csp).toMatch(/worker-src[^;]*'self'/)
     expect(csp).toMatch(/worker-src[^;]*blob:/)
   })
+
+  test('Should serve /esri-map under the existing CSP with no direct browser calls to services.arcgis.com', async () => {
+    const resp = await server.inject({
+      method: 'GET',
+      url: '/esri-map'
+    })
+
+    const csp = resp.headers['content-security-policy']
+    // Esri REST calls happen server-side only (Node fetch in esri-client.js),
+    // so the browser never talks to services.arcgis.com directly - no new
+    // connect-src/img-src entry is needed for that domain. The map itself
+    // reuses the same MapLibre/OpenFreeMap tile + worker mechanism already
+    // covered by the existing directives below.
+    expect(csp).not.toContain('services.arcgis.com')
+    expect(csp).toContain('https://tiles.openfreemap.org')
+    expect(csp).toMatch(/worker-src[^;]*'self'/)
+    expect(csp).toMatch(/worker-src[^;]*blob:/)
+  })
 })
