@@ -29,7 +29,7 @@ export const esriMapController = {
         lowPathGeoJson: categorisedFeatures.low_path,
         unknownGeoJson: categorisedFeatures.unknown
       }
-      return h.view('esri-map', context)
+      return h.view('esri-map/index', context)
     } catch (error) {
       request.logger.error({ err: error }, 'Error fetching Esri features')
       const context = {
@@ -38,7 +38,7 @@ export const esriMapController = {
         lowPathGeoJson: { type: 'FeatureCollection', features: [] },
         unknownGeoJson: { type: 'FeatureCollection', features: [] }
       }
-      return h.view('esri-map', context)
+      return h.view('esri-map/index', context)
     }
   }
 }

@@ -7,7 +7,11 @@ import {
   beforeAll,
   afterAll
 } from 'vitest'
+import * as cheerio from 'cheerio'
+import { readFileSync } from 'node:fs'
+import nunjucks from 'nunjucks'
 import { createServer } from '#/server/server.js'
+import '#/config/nunjucks/nunjucks.js'
 
 // Mock config using the async pattern (needed when other modules load config at import time)
 vi.mock('#/config/config.js', async (importOriginal) => {
@@ -141,7 +145,7 @@ describe('esriMapController', () => {
       await esriMapController.handler(request, h)
 
       const viewCall = mockView.mock.calls[0]
-      expect(viewCall[0]).toBe('esri-map')
+      expect(viewCall[0]).toBe('esri-map/index')
       expect(viewCall[1]).toHaveProperty(
         'highPathGeoJson',
         mockCategorised.high_path
@@ -205,7 +209,7 @@ describe('esriMapController', () => {
       await esriMapController.handler(request, h)
 
       const viewCall = mockView.mock.calls[0]
-      expect(viewCall[0]).toBe('esri-map')
+      expect(viewCall[0]).toBe('esri-map/index')
       expect(viewCall[1].highPathGeoJson).toEqual({
         type: 'FeatureCollection',
         features: []
@@ -245,7 +249,7 @@ describe('esriMapController', () => {
         mockFeatureCollection
       )
       expect(mockView).toHaveBeenCalledWith(
-        'esri-map',
+        'esri-map/index',
         expect.objectContaining({
           highPathGeoJson: { type: 'FeatureCollection', features: [] },
           lowPathGeoJson: { type: 'FeatureCollection', features: [] },
@@ -305,5 +309,60 @@ describe('esriMapPresenter', () => {
         text: 'Esri map'
       }
     ])
+  })
+})
+
+describe('esriMapTemplate', () => {
+  it('should render the map container, embedded GeoJSON payloads and client assets', () => {
+    const template = readFileSync(
+      new URL('./index.njk', import.meta.url),
+      'utf8'
+    )
+    const $ = cheerio.load(
+      nunjucks.renderString(template, {
+        serviceName: 'apha-incubator-frontend-poc',
+        serviceUrl: '/',
+        navigation: [],
+        breadcrumbs: [],
+        heading: 'Esri map',
+        getAssetPath: (asset) => `/public/${asset}`,
+        getAssetCss: () => ['/public/assets/esri-map.css'],
+        highPathGeoJson: {
+          type: 'FeatureCollection',
+          features: [{ type: 'Feature', properties: { id: 'high-1' } }]
+        },
+        lowPathGeoJson: {
+          type: 'FeatureCollection',
+          features: [{ type: 'Feature', properties: { id: 'low-1' } }]
+        },
+        unknownGeoJson: {
+          type: 'FeatureCollection',
+          features: [{ type: 'Feature', properties: { id: 'unknown-1' } }]
+        }
+      })
+    )
+
+    expect($('#esri-map')).toHaveLength(1)
+    expect($('[data-testid="esri-map-placeholder"]')).toHaveLength(0)
+    expect(JSON.parse($('#high-path-geojson').text())).toEqual({
+      type: 'FeatureCollection',
+      features: [{ type: 'Feature', properties: { id: 'high-1' } }]
+    })
+    expect(JSON.parse($('#low-path-geojson').text())).toEqual({
+      type: 'FeatureCollection',
+      features: [{ type: 'Feature', properties: { id: 'low-1' } }]
+    })
+    expect(JSON.parse($('#unknown-geojson').text())).toEqual({
+      type: 'FeatureCollection',
+      features: [{ type: 'Feature', properties: { id: 'unknown-1' } }]
+    })
+    expect(
+      $(
+        'script[type="module"][src="/public/src/client/javascripts/esri-map.js"]'
+      )
+    ).toHaveLength(1)
+    expect(
+      $('link[rel="stylesheet"][href="/public/assets/esri-map.css"]')
+    ).toHaveLength(1)
   })
 })
