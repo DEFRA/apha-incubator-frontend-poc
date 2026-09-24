@@ -254,6 +254,21 @@ export const config = convict({
       default: 5,
       env: 'WAHIS_DETAIL_CONCURRENCY'
     }
+  },
+  esri: {
+    apiUrl: {
+      doc: 'Base URL (host) of the Esri ArcGIS service, e.g. https://services.arcgis.com — the Esri client prepends the positive wild bird FeatureServer layer path. Must be set via ESRI_API_BASE_URL in .env — no default committed here.',
+      format: String,
+      default: '',
+      env: 'ESRI_API_BASE_URL'
+    },
+    wildBirdsLayerPath: {
+      doc: 'Path of the positive wild bird avian influenza FeatureServer layer, prepended to `esri.apiUrl`. Not sensitive, so a default is committed here rather than requiring an env var.',
+      format: String,
+      default:
+        'JJzESW51TqeY9uat/ArcGIS/rest/services/Positive_Wild_Birds_All_Seasons_(Public)/FeatureServer/0',
+      env: 'ESRI_WILD_BIRDS_LAYER_PATH'
+    }
   }
 })
 

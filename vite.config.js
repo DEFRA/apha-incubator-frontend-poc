@@ -77,7 +77,8 @@ export default defineConfig({
         dashboardPlotly: 'src/client/javascripts/dashboard-plotly.js',
         dashboardChartjs: 'src/client/javascripts/dashboard-chartjs.js',
         dashboardD3: 'src/client/javascripts/dashboard-d3.js',
-        latestCasesMap: 'src/client/javascripts/latest-cases-map.js'
+        latestCasesMap: 'src/client/javascripts/latest-cases-map.js',
+        'esri-map': 'src/client/javascripts/esri-map.js'
       }
     },
     sourcemap: true

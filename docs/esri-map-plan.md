@@ -14,7 +14,10 @@ dependencies (`@arcgis/core`) needed.
 **Service:** `Positive_Wild_Birds_All_Seasons_(Public)` FeatureServer, layer `0`
 (`Wild_Birds_All`), single point layer, public, no token required.
 
-**API URL:** Configure the base service URL in `.env` (e.g. `ESRI_API_URL`). The
+**API URL:** Configure the base service URL (host only, e.g. `https://services.arcgis.com`)
+in `.env` (`ESRI_API_BASE_URL`). The Esri client prepends the specific FeatureServer
+layer path (see `esri.wildBirdsLayerPath` in `config.js`, overridable via
+`ESRI_WILD_BIRDS_LAYER_PATH`). The
 query parameters use `where=1=1`, `outFields=*`, `returnGeometry=true`, and
 `f=geojson`. Without the `where=1=1` clause, the ArcGIS service returns little/no data.
 
@@ -32,7 +35,7 @@ Query params:
 The full dataset must be fetched in pages using `resultOffset` /
 `resultRecordCount`, repeating until `exceededTransferLimit` is `false` (or the
 response has fewer than `resultRecordCount` features), then merging all pages
-into a single `FeatureCollection`. Use the `ESRI_API_URL` environment variable
+into a single `FeatureCollection`. Use the `ESRI_API_BASE_URL` environment variable
 to construct paginated requests with `resultOffset` and `resultRecordCount` query parameters.
 
 **Fields returned** (from `FeatureServer/0?f=pjson`):
