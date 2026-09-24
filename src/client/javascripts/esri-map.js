@@ -2,10 +2,26 @@ import InteractiveMap from '@defra/interactive-map'
 import maplibreProvider from '@defra/interactive-map/providers/maplibre'
 import createDatasetsPlugin from '@defra/interactive-map/plugins/datasets'
 import createMapKeyPlugin from '@defra/interactive-map/plugins/map-key'
+import createInteractPlugin from '@defra/interactive-map/plugins/interact'
 import '@defra/interactive-map/css'
 import '@defra/interactive-map/plugins/map-key/css'
 
 const maplibreWorkerUrl = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/vendor/maplibre-gl/maplibre-gl-worker.mjs`
+
+const ESRI_INFO_PANEL_ID = 'esri-feature-info'
+const notReported = 'Not reported'
+
+const dateFormatter = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric'
+})
+
+function formatDate(epochMs) {
+  return typeof epochMs === 'number'
+    ? dateFormatter.format(new Date(epochMs))
+    : notReported
+}
 
 function parseFeatureCollection(scriptId) {
   const geojsonEl = document.getElementById(scriptId)
@@ -71,6 +87,15 @@ const datasetsPlugin = createDatasetsPlugin({
 
 const mapKeyPlugin = createMapKeyPlugin()
 
+const interactPlugin = createInteractPlugin({
+  interactionModes: ['selectFeature'],
+  layers: [
+    { layerId: 'esri-map-high-path', idProperty: 'OBJECTID' },
+    { layerId: 'esri-map-low-path', idProperty: 'OBJECTID' },
+    { layerId: 'esri-map-unknown', idProperty: 'OBJECTID' }
+  ]
+})
+
 const interactiveMap = new InteractiveMap('esri-map', {
   mapProvider: maplibreProvider({ workerUrl: maplibreWorkerUrl }),
   behaviour: 'hybrid',
@@ -79,7 +104,7 @@ const interactiveMap = new InteractiveMap('esri-map', {
   center: [-2, 54],
   containerHeight: '500px',
   enableFullscreen: true,
-  plugins: [datasetsPlugin, mapKeyPlugin],
+  plugins: [datasetsPlugin, mapKeyPlugin, interactPlugin],
   mapStyle: {
     url: 'https://tiles.openfreemap.org/styles/liberty',
     attribution: 'OpenFreeMap © OpenMapTiles Data from OpenStreetMap',
@@ -87,8 +112,57 @@ const interactiveMap = new InteractiveMap('esri-map', {
   }
 })
 
+function renderFeatureInfo(properties) {
+  const {
+    Town,
+    County,
+    Country,
+    Species,
+    Virus_Isolated: virusIsolated,
+    High_Path: highPath,
+    Date_collected: dateCollected,
+    Test_date: testDate
+  } = properties
+
+  return `
+    <p class="govuk-body govuk-!-margin-bottom-1"><strong>${Town ?? notReported}</strong></p>
+    <p class="govuk-body govuk-!-margin-bottom-1">${County ?? notReported}, ${Country ?? notReported}</p>
+    <p class="govuk-body govuk-!-margin-bottom-1">Species: ${Species ?? notReported}</p>
+    <p class="govuk-body govuk-!-margin-bottom-1">Virus isolated: ${virusIsolated ?? notReported}</p>
+    <p class="govuk-body govuk-!-margin-bottom-1">High pathogenicity: ${highPath ?? notReported}</p>
+    <p class="govuk-body govuk-!-margin-bottom-1">Date collected: ${formatDate(dateCollected)}</p>
+    <p class="govuk-body govuk-!-margin-bottom-1">Test date: ${formatDate(testDate)}</p>
+  `
+}
+
 interactiveMap.on('map:ready', () => {
   if (combinedGeoJson.features.length > 0) {
     interactiveMap.fitToBounds(combinedGeoJson)
+  }
+
+  interactPlugin.enable()
+  interactiveMap.addPanel(ESRI_INFO_PANEL_ID, {
+    focus: false,
+    label: 'Selected feature',
+    html: `<div id="${ESRI_INFO_PANEL_ID}-content"></div>`,
+    mobile: { slot: 'drawer', dismissible: true },
+    tablet: { slot: 'left-top', dismissible: true, width: '300px' },
+    desktop: { slot: 'left-top', dismissible: true, width: '300px' }
+  })
+})
+
+interactiveMap.on('interact:selectionchange', ({ selectedFeatures }) => {
+  if (selectedFeatures.length > 0) {
+    document.getElementById(`${ESRI_INFO_PANEL_ID}-content`).innerHTML =
+      renderFeatureInfo(selectedFeatures[0].properties)
+    interactiveMap.showPanel(ESRI_INFO_PANEL_ID)
+  } else {
+    interactiveMap.hidePanel(ESRI_INFO_PANEL_ID)
+  }
+})
+
+interactiveMap.on('app:panelclosed', ({ panelId }) => {
+  if (panelId === ESRI_INFO_PANEL_ID) {
+    interactPlugin.clear()
   }
 })
