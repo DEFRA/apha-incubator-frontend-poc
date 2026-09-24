@@ -9,6 +9,9 @@ import '@defra/interactive-map/plugins/map-key/css'
 const maplibreWorkerUrl = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/vendor/maplibre-gl/maplibre-gl-worker.mjs`
 
 const ESRI_INFO_PANEL_ID = 'esri-feature-info'
+const RASTER_SOURCE_ID = 'wild-birds-heatmap-source'
+const RASTER_LAYER_ID = 'wild-birds-heatmap-layer'
+const RASTER_TOGGLE_PANEL_ID = 'wild-birds-heatmap-toggle'
 const notReported = 'Not reported'
 
 const dateFormatter = new Intl.DateTimeFormat('en-GB', {
@@ -34,6 +37,21 @@ function parseFeatureCollection(scriptId) {
 const highPathGeoJson = parseFeatureCollection('high-path-geojson')
 const lowPathGeoJson = parseFeatureCollection('low-path-geojson')
 const unknownGeoJson = parseFeatureCollection('unknown-geojson')
+
+/**
+ * Read the wild birds heatmap raster overlay payload
+ * (`{ pngDataUrl, coordinates }`) embedded by the controller/template, or
+ * `null` when the overlay could not be fetched/decoded server-side.
+ * @returns {{pngDataUrl: string, coordinates: number[][]}|null} The raster
+ *   overlay payload, or `null` when unavailable.
+ */
+function parseRasterOverlay() {
+  const rasterEl = document.getElementById('raster-overlay')
+
+  return rasterEl ? JSON.parse(rasterEl.textContent) : null
+}
+
+const rasterOverlay = parseRasterOverlay()
 
 const combinedGeoJson = {
   type: 'FeatureCollection',
@@ -135,9 +153,94 @@ function renderFeatureInfo(properties) {
   `
 }
 
-interactiveMap.on('map:ready', () => {
+/**
+ * Run `callback` once the map's style has finished loading. MapLibre
+ * throws if `addSource`/`addLayer` are called before the style is ready,
+ * and `map:ready` can fire slightly before that point, so this guards
+ * against the race by deferring to the next `styledata` event when
+ * needed.
+ * @param {object} map - The native MapLibre `Map` instance.
+ * @param {Function} callback - Called once the style is loaded.
+ */
+function whenStyleLoaded(map, callback) {
+  if (map.isStyleLoaded()) {
+    callback()
+  } else {
+    map.once('styledata', () => whenStyleLoaded(map, callback))
+  }
+}
+
+/**
+ * Add the wild birds heatmap raster overlay to the map as a native
+ * MapLibre `image` source + `raster` layer, with a manual visibility
+ * toggle panel.
+ *
+ * This uses the native MapLibre `Map` instance passed in the `map:ready`
+ * event payload (documented — see `EVENTS.MAP_READY` in
+ * `@defra/interactive-map`). It still bypasses the Datasets plugin
+ * entirely though, so there is no automatic legend/Map Key entry or
+ * layer-menu item; both are built manually here.
+ * @param {{pngDataUrl: string, coordinates: number[][]}} overlay - The
+ *   raster overlay payload.
+ * @param {object} map - The native MapLibre `Map` instance.
+ */
+function addRasterOverlay(overlay, map) {
+  whenStyleLoaded(map, () => {
+    map.addSource(RASTER_SOURCE_ID, {
+      type: 'image',
+      url: overlay.pngDataUrl,
+      coordinates: overlay.coordinates
+    })
+
+    map.addLayer({
+      id: RASTER_LAYER_ID,
+      type: 'raster',
+      source: RASTER_SOURCE_ID,
+      paint: { 'raster-opacity': 0.75 }
+    })
+  })
+
+  const checkboxId = `${RASTER_TOGGLE_PANEL_ID}-checkbox`
+
+  interactiveMap.addPanel(RASTER_TOGGLE_PANEL_ID, {
+    focus: false,
+    label: 'Layers',
+    html: `
+      <div class="govuk-checkboxes__item">
+        <input class="govuk-checkboxes__input" type="checkbox" id="${checkboxId}" checked>
+        <label class="govuk-label govuk-checkboxes__label" for="${checkboxId}">
+          Wild birds heatmap overlay
+        </label>
+      </div>
+    `,
+    mobile: { slot: 'drawer', dismissible: false },
+    tablet: { slot: 'right-top', dismissible: false, width: '260px' },
+    desktop: { slot: 'right-top', dismissible: false, width: '260px' }
+  })
+
+  // `addPanel` renders its HTML asynchronously (React), so the checkbox
+  // may not exist in the DOM yet immediately after this call — listen via
+  // delegation on `document` instead of looking the element up directly.
+  document.addEventListener('change', (event) => {
+    if (event.target.id !== checkboxId) {
+      return
+    }
+
+    map.setLayoutProperty(
+      RASTER_LAYER_ID,
+      'visibility',
+      event.target.checked ? 'visible' : 'none'
+    )
+  })
+}
+
+interactiveMap.on('map:ready', ({ map }) => {
   if (combinedGeoJson.features.length > 0) {
     interactiveMap.fitToBounds(combinedGeoJson)
+  }
+
+  if (rasterOverlay) {
+    addRasterOverlay(rasterOverlay, map)
   }
 
   interactPlugin.enable()
