@@ -364,9 +364,7 @@ describe('#esriMap', () => {
     })
 
     expect(panelContent.innerHTML).toContain('Wrexham')
-    expect(panelContent.innerHTML).toContain(
-      'Wrexham County Borough Council'
-    )
+    expect(panelContent.innerHTML).toContain('Wrexham County Borough Council')
     expect(panelContent.innerHTML).toContain('Wales')
     expect(panelContent.innerHTML).toContain('Pheasant')
     expect(panelContent.innerHTML).toContain('H5N1')

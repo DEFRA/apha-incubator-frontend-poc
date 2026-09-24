@@ -40,6 +40,9 @@ describe('fetchEsriFeatureCollection', () => {
     )
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock.mock.calls[0][0]).toBe(
+      'https://example.test/layer/JJzESW51TqeY9uat/ArcGIS/rest/services/Positive_Wild_Birds_All_Seasons_(Public)/FeatureServer/0/query?where=1=1&outFields=*&returnGeometry=true&f=geojson&resultOffset=0&resultRecordCount=2'
+    )
     expect(result).toEqual({ type: 'FeatureCollection', features })
   })
 

@@ -11,3 +11,5 @@ coverage
 tsconfig.tsbuildinfo
 .env
 csv
+.playwright-mcp/
+/*.png

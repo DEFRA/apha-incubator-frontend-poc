@@ -40,8 +40,10 @@ async function fetchPage(url) {
  * Fetch all features from an Esri feature service, paginating as needed.
  * Never throws - on any failure it logs the error and returns an empty
  * FeatureCollection so that the map can still render without data.
- * @param {string} [baseUrl] - Base URL of the Esri feature service layer.
- *   Defaults to the configured `esri.apiUrl` when not provided.
+ * @param {string} [baseUrl] - Base URL (host) of the Esri ArcGIS service,
+ *   e.g. https://services.arcgis.com — the wild birds layer path is
+ *   prepended automatically. Defaults to the configured `esri.apiUrl`
+ *   when not provided.
  * @param {object} [options] - Options.
  * @param {number} [options.pageSize] - Number of records to request per page.
  * @returns {Promise<object>} A merged GeoJSON FeatureCollection.
@@ -50,7 +52,7 @@ export async function fetchEsriFeatureCollection(
   baseUrl,
   { pageSize = DEFAULT_PAGE_SIZE } = {}
 ) {
-  const url = baseUrl ?? config.get('esri.apiUrl')
+  const layerBaseUrl = `${baseUrl ?? config.get('esri.apiUrl')}/${config.get('esri.wildBirdsLayerPath')}`
   const features = []
 
   try {
@@ -65,7 +67,7 @@ export async function fetchEsriFeatureCollection(
     // fewer than `pageSize` features), then stop and treat all fetched
     // pages together as the full dataset.
     while (hasMorePages) {
-      const queryUrl = buildQueryUrl(url, offset, pageSize)
+      const queryUrl = buildQueryUrl(layerBaseUrl, offset, pageSize)
       const page = await fetchPage(queryUrl)
       const pageFeatures = page?.features ?? []
 
