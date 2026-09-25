@@ -34,6 +34,7 @@ vi.mock('#/config/config.js', async (importOriginal) => {
 
 vi.mock('#/server/common/helpers/esri/esri-client.js')
 vi.mock('#/server/common/helpers/esri/wild-birds-geojson.js')
+vi.mock('#/server/common/helpers/raster/cog-raster.js')
 
 // Now import after mocks are set up
 import { config } from '#/config/config.js'
@@ -41,6 +42,7 @@ import { esriMapController } from './controller.js'
 import { esriMapPresenter } from './presenter.js'
 import * as esriClient from '#/server/common/helpers/esri/esri-client.js'
 import * as wildBirdsGeoJson from '#/server/common/helpers/esri/wild-birds-geojson.js'
+import * as cogRaster from '#/server/common/helpers/raster/cog-raster.js'
 
 describe('esriMapController', () => {
   let request
@@ -49,6 +51,8 @@ describe('esriMapController', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+
+    vi.mocked(cogRaster.fetchWildBirdsHeatmapOverlay).mockResolvedValue(null)
 
     mockView = vi.fn()
     h = {
@@ -257,6 +261,85 @@ describe('esriMapController', () => {
         })
       )
     })
+
+    it('should pass the raster overlay payload to the view context when available', async () => {
+      const mockFeatureCollection = { type: 'FeatureCollection', features: [] }
+      const mockCategorised = {
+        high_path: { type: 'FeatureCollection', features: [] },
+        low_path: { type: 'FeatureCollection', features: [] },
+        unknown: { type: 'FeatureCollection', features: [] }
+      }
+      const mockRasterOverlay = {
+        pngDataUrl: 'data:image/png;base64,aGVsbG8=',
+        coordinates: [
+          [-8.9, 61.1],
+          [2.1, 61.1],
+          [2.1, 49.4],
+          [-8.9, 49.4]
+        ]
+      }
+
+      vi.mocked(esriClient.fetchEsriFeatureCollection).mockResolvedValue(
+        mockFeatureCollection
+      )
+      vi.mocked(wildBirdsGeoJson.categoriseWildBirdFeatures).mockReturnValue(
+        mockCategorised
+      )
+      vi.mocked(cogRaster.fetchWildBirdsHeatmapOverlay).mockResolvedValue(
+        mockRasterOverlay
+      )
+
+      await esriMapController.handler(request, h)
+
+      const viewCall = mockView.mock.calls[0]
+      expect(viewCall[1]).toHaveProperty('rasterOverlay', mockRasterOverlay)
+    })
+
+    it('should pass a null raster overlay when it could not be fetched/decoded', async () => {
+      const mockFeatureCollection = { type: 'FeatureCollection', features: [] }
+      const mockCategorised = {
+        high_path: { type: 'FeatureCollection', features: [] },
+        low_path: { type: 'FeatureCollection', features: [] },
+        unknown: { type: 'FeatureCollection', features: [] }
+      }
+
+      vi.mocked(esriClient.fetchEsriFeatureCollection).mockResolvedValue(
+        mockFeatureCollection
+      )
+      vi.mocked(wildBirdsGeoJson.categoriseWildBirdFeatures).mockReturnValue(
+        mockCategorised
+      )
+      vi.mocked(cogRaster.fetchWildBirdsHeatmapOverlay).mockResolvedValue(null)
+
+      await esriMapController.handler(request, h)
+
+      const viewCall = mockView.mock.calls[0]
+      expect(viewCall[1]).toHaveProperty('rasterOverlay', null)
+    })
+
+    it('should still include the raster overlay in the view context when the Esri fetch fails', async () => {
+      const mockRasterOverlay = {
+        pngDataUrl: 'data:image/png;base64,aGVsbG8=',
+        coordinates: [
+          [-8.9, 61.1],
+          [2.1, 61.1],
+          [2.1, 49.4],
+          [-8.9, 49.4]
+        ]
+      }
+
+      vi.mocked(esriClient.fetchEsriFeatureCollection).mockRejectedValue(
+        new Error('Network error')
+      )
+      vi.mocked(cogRaster.fetchWildBirdsHeatmapOverlay).mockResolvedValue(
+        mockRasterOverlay
+      )
+
+      await esriMapController.handler(request, h)
+
+      const viewCall = mockView.mock.calls[0]
+      expect(viewCall[1]).toHaveProperty('rasterOverlay', mockRasterOverlay)
+    })
   })
 })
 
@@ -338,6 +421,15 @@ describe('esriMapTemplate', () => {
         unknownGeoJson: {
           type: 'FeatureCollection',
           features: [{ type: 'Feature', properties: { id: 'unknown-1' } }]
+        },
+        rasterOverlay: {
+          pngDataUrl: 'data:image/png;base64,aGVsbG8=',
+          coordinates: [
+            [-8.9, 61.1],
+            [2.1, 61.1],
+            [2.1, 49.4],
+            [-8.9, 49.4]
+          ]
         }
       })
     )
@@ -356,6 +448,15 @@ describe('esriMapTemplate', () => {
       type: 'FeatureCollection',
       features: [{ type: 'Feature', properties: { id: 'unknown-1' } }]
     })
+    expect(JSON.parse($('#raster-overlay').text())).toEqual({
+      pngDataUrl: 'data:image/png;base64,aGVsbG8=',
+      coordinates: [
+        [-8.9, 61.1],
+        [2.1, 61.1],
+        [2.1, 49.4],
+        [-8.9, 49.4]
+      ]
+    })
     expect(
       $(
         'script[type="module"][src="/public/src/client/javascripts/esri-map.js"]'
@@ -364,5 +465,29 @@ describe('esriMapTemplate', () => {
     expect(
       $('link[rel="stylesheet"][href="/public/assets/esri-map.css"]')
     ).toHaveLength(1)
+  })
+
+  it('should render "null" for the raster overlay script tag when no overlay is provided', () => {
+    const template = readFileSync(
+      new URL('./index.njk', import.meta.url),
+      'utf8'
+    )
+    const $ = cheerio.load(
+      nunjucks.renderString(template, {
+        serviceName: 'apha-incubator-frontend-poc',
+        serviceUrl: '/',
+        navigation: [],
+        breadcrumbs: [],
+        heading: 'Esri map',
+        getAssetPath: (asset) => `/public/${asset}`,
+        getAssetCss: () => ['/public/assets/esri-map.css'],
+        highPathGeoJson: { type: 'FeatureCollection', features: [] },
+        lowPathGeoJson: { type: 'FeatureCollection', features: [] },
+        unknownGeoJson: { type: 'FeatureCollection', features: [] },
+        rasterOverlay: null
+      })
+    )
+
+    expect(JSON.parse($('#raster-overlay').text())).toBeNull()
   })
 })

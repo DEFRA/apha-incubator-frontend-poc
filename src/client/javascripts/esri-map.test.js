@@ -7,6 +7,9 @@ const mockShowPanel = vi.fn()
 const mockHidePanel = vi.fn()
 const mockInteractiveMapConstructor = vi.fn()
 const mockMaplibreProvider = vi.fn(() => 'maplibreProvider')
+const mockAddSource = vi.fn()
+const mockAddLayer = vi.fn()
+const mockSetLayoutProperty = vi.fn()
 const mockCreateDatasetsPlugin = vi.fn((options) => ({
   id: 'datasetsPlugin',
   datasets: options.datasets
@@ -67,6 +70,24 @@ const sampleFeatureProperties = {
   Season: 21
 }
 
+const rasterOverlayPayload = {
+  pngDataUrl: 'data:image/png;base64,aGVsbG8=',
+  coordinates: [
+    [-8.9, 61.1],
+    [2.1, 61.1],
+    [2.1, 49.4],
+    [-8.9, 49.4]
+  ]
+}
+
+const mockNativeMap = {
+  addSource: mockAddSource,
+  addLayer: mockAddLayer,
+  setLayoutProperty: mockSetLayoutProperty,
+  isStyleLoaded: vi.fn(() => true),
+  once: vi.fn()
+}
+
 vi.mock('@defra/interactive-map/providers/maplibre', () => ({
   default: (...args) => mockMaplibreProvider(...args)
 }))
@@ -90,9 +111,14 @@ function createTestElement(tagName, id = null) {
     textContent: '',
     style: {},
     children: [],
+    checked: false,
+    listeners: {},
     appendChild(child) {
       this.children.push(child)
       return child
+    },
+    addEventListener(eventName, handler) {
+      this.listeners[eventName] = handler
     }
   }
 }
@@ -100,22 +126,36 @@ function createTestElement(tagName, id = null) {
 function stubGeojsonScripts({
   highPath = highPathGeoJson,
   lowPath = lowPathGeoJson,
-  unknown = unknownGeoJson
+  unknown = unknownGeoJson,
+  rasterOverlay = null
 } = {}) {
   const mapContainer = createTestElement('div', 'esri-map')
+  const rasterToggleCheckbox = createTestElement(
+    'input',
+    'wild-birds-heatmap-toggle-checkbox'
+  )
+  rasterToggleCheckbox.checked = true
+
   const nodes = {
     'esri-map': mapContainer,
     'high-path-geojson': { textContent: JSON.stringify(highPath) },
     'low-path-geojson': { textContent: JSON.stringify(lowPath) },
-    'unknown-geojson': { textContent: JSON.stringify(unknown) }
+    'unknown-geojson': { textContent: JSON.stringify(unknown) },
+    'raster-overlay': { textContent: JSON.stringify(rasterOverlay) },
+    'wild-birds-heatmap-toggle-checkbox': rasterToggleCheckbox
   }
+
+  const documentListeners = {}
 
   vi.stubGlobal('document', {
     createElement: vi.fn((tagName) => createTestElement(tagName)),
-    getElementById: vi.fn((id) => nodes[id] ?? null)
+    getElementById: vi.fn((id) => nodes[id] ?? null),
+    addEventListener: vi.fn((eventName, handler) => {
+      documentListeners[eventName] = handler
+    })
   })
 
-  return { mapContainer }
+  return { mapContainer, rasterToggleCheckbox, documentListeners }
 }
 
 function renderLegendFromPlugins(plugins) {
@@ -275,7 +315,7 @@ describe('#esriMap', () => {
       ([eventName]) => eventName === 'map:ready'
     )
 
-    mapReadyHandler()
+    mapReadyHandler({ map: mockNativeMap })
 
     expect(mockFitToBounds).not.toHaveBeenCalled()
   })
@@ -289,7 +329,7 @@ describe('#esriMap', () => {
       ([eventName]) => eventName === 'map:ready'
     )
 
-    mapReadyHandler()
+    mapReadyHandler({ map: mockNativeMap })
 
     expect(mockFitToBounds).toHaveBeenCalledWith({
       type: 'FeatureCollection',
@@ -337,7 +377,7 @@ describe('#esriMap', () => {
     )
     const interactPlugin = mockCreateInteractPlugin.mock.results[0].value
 
-    mapReadyHandler()
+    mapReadyHandler({ map: mockNativeMap })
 
     expect(interactPlugin.enable).toHaveBeenCalled()
     expect(mockAddPanel).toHaveBeenCalledWith(
@@ -422,11 +462,115 @@ describe('#esriMap', () => {
     const interactPlugin = mockCreateInteractPlugin.mock.results[0].value
 
     // map:ready registers the panel, so we know the real panel ID used.
-    mapReadyHandler()
+    mapReadyHandler({ map: mockNativeMap })
     const [registeredPanelId] = mockAddPanel.mock.calls[0]
 
     panelClosedHandler({ panelId: registeredPanelId })
 
     expect(interactPlugin.clear).toHaveBeenCalled()
+  })
+
+  test('Should add the raster overlay source, layer and toggle panel when a raster overlay payload is embedded', async () => {
+    stubGeojsonScripts({ rasterOverlay: rasterOverlayPayload })
+
+    await import('./esri-map.js')
+
+    const [, mapReadyHandler] = mockOn.mock.calls.find(
+      ([eventName]) => eventName === 'map:ready'
+    )
+
+    mapReadyHandler({ map: mockNativeMap })
+
+    expect(mockAddSource).toHaveBeenCalledWith(
+      'wild-birds-heatmap-source',
+      expect.objectContaining({
+        type: 'image',
+        url: rasterOverlayPayload.pngDataUrl,
+        coordinates: rasterOverlayPayload.coordinates
+      })
+    )
+    expect(mockAddLayer).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'wild-birds-heatmap-layer',
+        type: 'raster',
+        source: 'wild-birds-heatmap-source'
+      })
+    )
+    expect(mockAddPanel).toHaveBeenCalledWith(
+      'wild-birds-heatmap-toggle',
+      expect.objectContaining({ label: 'Layers' })
+    )
+  })
+
+  test('Should not add a raster overlay when no raster payload is embedded', async () => {
+    stubGeojsonScripts()
+
+    await import('./esri-map.js')
+
+    const [, mapReadyHandler] = mockOn.mock.calls.find(
+      ([eventName]) => eventName === 'map:ready'
+    )
+
+    mapReadyHandler({ map: mockNativeMap })
+
+    expect(mockAddSource).not.toHaveBeenCalled()
+    expect(mockAddLayer).not.toHaveBeenCalled()
+  })
+
+  test('Should toggle the raster layer visibility when the overlay checkbox changes', async () => {
+    const { rasterToggleCheckbox, documentListeners } = stubGeojsonScripts({
+      rasterOverlay: rasterOverlayPayload
+    })
+
+    await import('./esri-map.js')
+
+    const [, mapReadyHandler] = mockOn.mock.calls.find(
+      ([eventName]) => eventName === 'map:ready'
+    )
+
+    mapReadyHandler({ map: mockNativeMap })
+    rasterToggleCheckbox.checked = false
+    documentListeners.change({
+      target: rasterToggleCheckbox
+    })
+
+    expect(mockSetLayoutProperty).toHaveBeenCalledWith(
+      'wild-birds-heatmap-layer',
+      'visibility',
+      'none'
+    )
+  })
+
+  test('Should defer adding the raster source/layer until the map style has finished loading', async () => {
+    stubGeojsonScripts({ rasterOverlay: rasterOverlayPayload })
+
+    await import('./esri-map.js')
+
+    const [, mapReadyHandler] = mockOn.mock.calls.find(
+      ([eventName]) => eventName === 'map:ready'
+    )
+    const onceHandlers = {}
+    const notYetLoadedMap = {
+      addSource: mockAddSource,
+      addLayer: mockAddLayer,
+      setLayoutProperty: mockSetLayoutProperty,
+      isStyleLoaded: vi.fn(() => false),
+      once: vi.fn((eventName, handler) => {
+        onceHandlers[eventName] = handler
+      })
+    }
+
+    mapReadyHandler({ map: notYetLoadedMap })
+
+    expect(mockAddSource).not.toHaveBeenCalled()
+
+    notYetLoadedMap.isStyleLoaded.mockReturnValue(true)
+    onceHandlers.styledata()
+
+    expect(mockAddSource).toHaveBeenCalledWith(
+      'wild-birds-heatmap-source',
+      expect.objectContaining({ type: 'image' })
+    )
+    expect(mockAddLayer).toHaveBeenCalled()
   })
 })

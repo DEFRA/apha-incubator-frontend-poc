@@ -269,6 +269,14 @@ export const config = convict({
         'JJzESW51TqeY9uat/ArcGIS/rest/services/Positive_Wild_Birds_All_Seasons_(Public)/FeatureServer/0',
       env: 'ESRI_WILD_BIRDS_LAYER_PATH'
     }
+  },
+  raster: {
+    wildBirdsHeatmapUrl: {
+      doc: 'URL (typically S3) of the wild birds heatmap GeoTIFF raster overlay for the Esri map. When unset, the local sample fixture at src/server/data/rasters/wild-birds-heatmap.tif is used instead (dev/test default).',
+      format: String,
+      default: '',
+      env: 'RASTER_WILD_BIRDS_HEATMAP_URL'
+    }
   }
 })
 
