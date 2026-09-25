@@ -31,7 +31,7 @@ Given that, the implementation instead uses:
   `image.getBoundingBox()`. The client (`esri-map.js`) reaches the
   underlying MapLibre `Map` instance via the **documented**
   `map:ready` event payload (`interactiveMap.on('map:ready', ({ map }) =>
-  {...})` — see `MAP_READY` in `@defra/interactive-map`'s
+{...})` — see `MAP_READY` in `@defra/interactive-map`'s
   `src/config/events.js`) and calls
   `map.addSource(id, { type: 'image', url, coordinates })` +
   `map.addLayer({ type: 'raster', ... })` directly, after waiting for
