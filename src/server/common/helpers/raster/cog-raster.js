@@ -14,6 +14,25 @@ const LOCAL_FIXTURE_URL = new URL(
   import.meta.url
 )
 
+const WEB_MERCATOR_EPSG_CODE = 3857
+const WEB_MERCATOR_EARTH_RADIUS_METRES = 6378137
+
+/**
+ * Convert an EPSG:3857 (Web Mercator) coordinate to WGS84 (EPSG:4326)
+ * [lng, lat] degrees, using the standard spherical Web Mercator inverse
+ * formula.
+ * @param {number[]} coordinate - `[x, y]` in metres.
+ * @returns {number[]} `[lng, lat]` in degrees.
+ */
+function webMercatorToWgs84([x, y]) {
+  const lng = (x / WEB_MERCATOR_EARTH_RADIUS_METRES) * (180 / Math.PI)
+  const lat =
+    (2 * Math.atan(Math.exp(y / WEB_MERCATOR_EARTH_RADIUS_METRES)) -
+      Math.PI / 2) *
+    (180 / Math.PI)
+  return [lng, lat]
+}
+
 /**
  * Load the raw bytes of the GeoTIFF raster, either from a remote URL
  * (S3 in production) or the local sample fixture (dev/test default).
@@ -93,10 +112,10 @@ function boundingBoxToImageCorners([west, south, east, north]) {
  * MapLibre's `image` source. Never throws — on any failure it logs the
  * error and returns `null` so the map can still render without the overlay.
  *
- * NOTE: the CRS is assumed to be WGS84 (EPSG:4326), inferred from the
- * coordinate values in the sample file — the file has no explicit
- * GeoKeyDirectory tag declaring a CRS. Verify this against the real data
- * source before relying on it for anything precision-critical.
+ * Supports source rasters in WGS84 (EPSG:4326, coordinates used as-is) or
+ * Web Mercator (EPSG:3857, reprojected to WGS84 via
+ * `webMercatorToWgs84`), detected from the GeoTIFF's `ProjectedCSTypeGeoKey`.
+ * Files with no GeoKeyDirectory tag are assumed to already be in WGS84.
  * @param {string} [sourceUrl] - URL to fetch the raster from. Defaults to
  *   the configured `raster.wildBirdsHeatmapUrl`; when that is unset, falls
  *   back to the local sample fixture.
@@ -115,10 +134,16 @@ export async function fetchWildBirdsHeatmapOverlay(
     const boundingBox = image.getBoundingBox()
     const rasterData = await image.readRasters({ interleave: true })
     const pngBuffer = encodePng(rasterData, width, height)
+    const corners = boundingBoxToImageCorners(boundingBox)
+    const isWebMercator =
+      image.getGeoKeys()?.ProjectedCSTypeGeoKey === WEB_MERCATOR_EPSG_CODE
+    const coordinates = isWebMercator
+      ? corners.map(webMercatorToWgs84)
+      : corners
 
     return {
       pngDataUrl: `data:image/png;base64,${pngBuffer.toString('base64')}`,
-      coordinates: boundingBoxToImageCorners(boundingBox)
+      coordinates
     }
   } catch (error) {
     logger.error(

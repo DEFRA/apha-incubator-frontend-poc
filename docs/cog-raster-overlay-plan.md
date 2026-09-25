@@ -13,7 +13,7 @@ Cloud Optimized GeoTIFF (COG) pipeline using a custom MapLibre protocol
 handler (e.g. `@geomatico/maplibre-cog-protocol`) for tiled HTTP
 range-request streaming. Inspecting the actual sample file
 (`wild-birds-heatmap.tif`, now at `src/server/data/rasters/`) showed it is
-small (110×117px, single tile, no overview pyramid) — not the kind of
+small (583×1091px, single tile, no overview pyramid) — not the kind of
 large, multi-resolution raster that range-request streaming exists for.
 
 Given that, the implementation instead uses:
@@ -44,10 +44,14 @@ Given that, the implementation instead uses:
 
 ## Known caveats / follow-ups
 
-- **CRS assumption:** the sample file has no `GeoKeyDirectoryTag`, so its
-  CRS is not explicitly declared. WGS84 (EPSG:4326) is assumed from the
-  coordinate values (they plot over GB/Ireland) — **verify this against
-  the real production data source** before relying on it further.
+- **CRS handling:** the current sample fixture declares its CRS as
+  EPSG:3857 (Web Mercator) via its `GeoKeyDirectoryTag`.
+  `cog-raster.js` detects this via `image.getGeoKeys()` and reprojects
+  the 4 corner coordinates to WGS84 (EPSG:4326) before handing them to
+  MapLibre's `image` source. Files without a `GeoKeyDirectoryTag` (e.g.
+  the original sample) are still assumed to already be WGS84 — **verify
+  the CRS of any new production data source** and extend the
+  reprojection logic if it uses a different CRS.
 - **Scale ceiling:** this approach loads the whole raster into memory
   server-side and ships it as a single embedded PNG data URL. Fine for
   small rasters like the sample; if production files turn out to be large

@@ -32,10 +32,11 @@ describe('fetchWildBirdsHeatmapOverlay', () => {
       [expect.any(Number), expect.any(Number)]
     ])
 
-    // Top-left corner should match the sample fixture's known tiepoint.
+    // Top-left corner should match the sample fixture's known tiepoint
+    // (reprojected from the file's native EPSG:3857 to WGS84).
     const [topLeft] = result.coordinates
-    expect(topLeft[0]).toBeCloseTo(-8.914, 2)
-    expect(topLeft[1]).toBeCloseTo(61.112, 2)
+    expect(topLeft[0]).toBeCloseTo(-8.704, 2)
+    expect(topLeft[1]).toBeCloseTo(60.856, 2)
   })
 
   test('fetches and decodes a raster from a remote source URL', async () => {
