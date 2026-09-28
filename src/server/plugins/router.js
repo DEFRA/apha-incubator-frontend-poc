@@ -7,6 +7,7 @@ import { dashboardChartjs } from '../routes/dashboard-chartjs/index.js'
 import { dashboardD3 } from '../routes/dashboard-d3/index.js'
 import { latestCases } from '../routes/latest-cases/index.js'
 import { esriMap } from '../routes/esri-map/index.js'
+import { idmDashboard } from '../routes/idm-dashboard/index.js'
 import { health } from '../routes/health/index.js'
 import { serveStaticFiles } from './serve-static-files.js'
 import { config } from '#/config/config.js'
@@ -28,7 +29,8 @@ export const router = {
         dashboardChartjs,
         dashboardD3,
         latestCases,
-        esriMap
+        esriMap,
+        idmDashboard
       ])
 
       // Static assets

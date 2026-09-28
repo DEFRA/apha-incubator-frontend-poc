@@ -1,0 +1,27 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "partials/idm-dashboard-card.njk" import appIdmDashboardCard %}
+
+{% block content %}
+  {{ appHeading({
+    text: heading,
+    caption: "apha-incubator-frontend-poc"
+  }) }}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <p class="govuk-body" data-testid="idm-dashboard-intro">{{ intro }}</p>
+    </div>
+  </div>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {{ appIdmDashboardCard(twoThirdsCard) }}
+    </div>
+    <div class="govuk-grid-column-one-third">
+      {% for card in oneThirdCards %}
+        {{ appIdmDashboardCard(card) }}
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

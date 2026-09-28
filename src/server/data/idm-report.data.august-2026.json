@@ -1,0 +1,107 @@
+{
+  "meta": {
+    "title": "Synthetic Rainbow Tail Disease (RTD) Dataset",
+    "description": "Entirely fictional disease and figures generated for prototyping the IDM dashboard. Structure mirrors the idm-report.schema.json shape but contains no real APHA/IDM report data.",
+    "disclaimer": "Rainbow Tail Disease (RTD) does not exist. All countries, strains, counts and narrative text in this file are synthetic and generated purely for UI/prototype purposes. Do not use for anything other than dashboard development.",
+    "isSyntheticData": true,
+    "generatedAt": "2026-09-28T00:00:00Z"
+  },
+  "diseases": [
+    {
+      "id": "rtd",
+      "name": "Rainbow Tail Disease (RTD)",
+      "aliases": ["RTD"],
+      "note": "Fictional disease, invented for prototyping only.",
+      "months": [
+        {
+          "period": "2026-08",
+          "monthLabel": "August 2026",
+          "risk": {
+            "level": "High",
+            "context": "for livestock incursion, following first UK detections",
+            "trend": "deteriorating"
+          },
+          "narrative": "High for livestock incursion – deteriorating. In August, Rainbow Tail Disease (RTD) spread rapidly across Europe. Outbreaks of Variant A in commercial livestock increased sharply in France (15), Germany (12), Spain (5) and the Netherlands (8), with new outbreaks reported for the first time in Belgium (10) and the United Kingdom (20). Case numbers rose in parallel across all affected countries, most notably in the United Kingdom (60) and Spain (40). This represents a significant escalation compared to July, and the first confirmed detections in the UK. (Synthetic illustrative data only.)",
+          "totals": {
+            "outbreaks": 70,
+            "cases": 198,
+            "combined": 268
+          },
+          "countries": [
+            {
+              "country": "France",
+              "continent": "Europe",
+              "strains": [
+                { "strain": "Variant A", "type": "outbreak", "count": 15 },
+                { "strain": "Variant A", "type": "case", "count": 20 }
+              ],
+              "totals": { "outbreaks": 15, "cases": 20, "combined": 35 }
+            },
+            {
+              "country": "Netherlands",
+              "continent": "Europe",
+              "strains": [
+                { "strain": "Variant A", "type": "outbreak", "count": 8 },
+                { "strain": "Variant A", "type": "case", "count": 35 }
+              ],
+              "totals": { "outbreaks": 8, "cases": 35, "combined": 43 }
+            },
+            {
+              "country": "Germany",
+              "continent": "Europe",
+              "strains": [
+                { "strain": "Variant A", "type": "outbreak", "count": 12 },
+                { "strain": "Variant B", "type": "case", "count": 18 }
+              ],
+              "totals": { "outbreaks": 12, "cases": 18, "combined": 30 }
+            },
+            {
+              "country": "Spain",
+              "continent": "Europe",
+              "strains": [
+                { "strain": "Variant A", "type": "outbreak", "count": 5 },
+                { "strain": "Variant A", "type": "case", "count": 40 }
+              ],
+              "totals": { "outbreaks": 5, "cases": 40, "combined": 45 }
+            },
+            {
+              "country": "Belgium",
+              "continent": "Europe",
+              "strains": [
+                { "strain": "Variant A", "type": "outbreak", "count": 10 },
+                { "strain": "Variant A", "type": "case", "count": 25 }
+              ],
+              "totals": { "outbreaks": 10, "cases": 25, "combined": 35 }
+            },
+            {
+              "country": "United Kingdom",
+              "continent": "Europe",
+              "strains": [
+                { "strain": "Variant A", "type": "outbreak", "count": 20 },
+                { "strain": "Variant A", "type": "case", "count": 60 }
+              ],
+              "totals": { "outbreaks": 20, "cases": 60, "combined": 80 }
+            }
+          ],
+          "comparedToPreviousPeriod": {
+            "previousPeriod": "2026-07",
+            "totals": {
+              "outbreaksDelta": 67,
+              "casesDelta": 186,
+              "combinedDelta": 253,
+              "percentChange": 1686.7
+            },
+            "countries": [
+              { "country": "France", "outbreaksDelta": 13, "casesDelta": 17 },
+              { "country": "Netherlands", "outbreaksDelta": 8, "casesDelta": 31 },
+              { "country": "Germany", "outbreaksDelta": 11, "casesDelta": 16 },
+              { "country": "Spain", "outbreaksDelta": 5, "casesDelta": 37 },
+              { "country": "Belgium", "outbreaksDelta": 10, "casesDelta": 25 },
+              { "country": "United Kingdom", "outbreaksDelta": 20, "casesDelta": 60 }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

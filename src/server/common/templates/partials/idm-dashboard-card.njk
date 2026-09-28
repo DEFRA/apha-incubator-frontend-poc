@@ -1,0 +1,6 @@
+{% macro appIdmDashboardCard(card) %}
+  <section class="app-chart-card" data-testid="idm-dashboard-card-{{ card.id }}">
+    <h2 class="govuk-heading-m">{{ card.heading }}</h2>
+    <p class="govuk-body">{{ card.description }}</p>
+  </section>
+{% endmacro %}

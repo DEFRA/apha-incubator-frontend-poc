@@ -13,3 +13,5 @@ tsconfig.tsbuildinfo
 csv
 .playwright-mcp/
 /*.png
+
+.explain/

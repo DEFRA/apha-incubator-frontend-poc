@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://apha-incubator-frontend-poc/schemas/idm-report.schema.json",
+  "title": "IDM Monthly Report Schema (draft)",
+  "description": "Draft schema for statistics extracted from APHA International Disease Monitoring (IDM) monthly reports. Designed to power dashboard cards (headline totals, month-over-month change, risk level) with minimal free text. Structure is repeatable per disease so other diseases in the report (e.g. African Swine Fever, Foot and Mouth Disease) can be added later using the same shape as HPAI.",
+  "type": "object",
+  "required": ["diseases"],
+  "properties": {
+    "diseases": {
+      "type": "array",
+      "description": "One entry per disease tracked. Only HPAI (Highly Pathogenic Avian Influenza) is populated initially.",
+      "items": { "$ref": "#/$defs/disease" }
+    }
+  },
+  "$defs": {
+    "disease": {
+      "type": "object",
+      "required": ["id", "name", "months"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Stable identifier for the disease.",
+          "examples": ["hpai"]
+        },
+        "name": {
+          "type": "string",
+          "description": "Full display name as used in the report.",
+          "examples": ["Highly Pathogenic Avian Influenza (HPAI)"]
+        },
+        "aliases": {
+          "type": "array",
+          "description": "Other names/abbreviations used for this disease.",
+          "items": { "type": "string" },
+          "examples": [["Avian Influenza", "Bird Flu"]]
+        },
+        "months": {
+          "type": "array",
+          "description": "One entry per monthly report, ordered oldest to newest.",
+          "items": { "$ref": "#/$defs/monthEntry" }
+        }
+      }
+    },
+    "monthEntry": {
+      "type": "object",
+      "required": ["period", "monthLabel", "risk", "narrative", "totals", "countries"],
+      "properties": {
+        "period": {
+          "type": "string",
+          "description": "ISO year-month of the report.",
+          "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$",
+          "examples": ["2026-08"]
+        },
+        "monthLabel": {
+          "type": "string",
+          "description": "Human readable month and year, for display.",
+          "examples": ["August 2026"]
+        },
+        "risk": { "$ref": "#/$defs/risk" },
+        "narrative": {
+          "type": "string",
+          "description": "Verbatim risk-level line plus the report's 'Comment' summary paragraph for this disease and month. Not per-country detail. Intended for a supporting text page, not the statistics dashboard."
+        },
+        "totals": { "$ref": "#/$defs/counts" },
+        "countries": {
+          "type": "array",
+          "description": "Per-country breakdown of outbreaks/cases by strain.",
+          "items": { "$ref": "#/$defs/countryEntry" }
+        },
+        "comparedToPreviousPeriod": {
+          "description": "Month-over-month comparison versus the immediately preceding month entry for this disease. Absent for the first month in the series.",
+          "$ref": "#/$defs/comparison"
+        }
+      }
+    },
+    "risk": {
+      "type": "object",
+      "required": ["level", "trend"],
+      "properties": {
+        "level": {
+          "type": "string",
+          "description": "Risk level as stated in the report.",
+          "examples": ["Negligible", "Very Low", "Low", "Medium", "High"]
+        },
+        "context": {
+          "type": "string",
+          "description": "Optional qualifier for what the risk level applies to.",
+          "examples": ["for wild bird incursion"]
+        },
+        "trend": {
+          "type": "string",
+          "description": "Direction of travel, using the report's own 4-category legend.",
+          "enum": ["deteriorating", "no-change", "improving", "undetermined"]
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "required": ["outbreaks", "cases", "combined"],
+      "properties": {
+        "outbreaks": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Count of confirmed disease outbreaks (typically in commercial/captive/non-poultry premises)."
+        },
+        "cases": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Count of individual confirmed cases (typically in wild birds/animals)."
+        },
+        "combined": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "outbreaks + cases, provided for convenience so the UI does not need to sum client-side."
+        }
+      }
+    },
+    "strainCount": {
+      "type": "object",
+      "required": ["strain", "type", "count"],
+      "properties": {
+        "strain": {
+          "type": "string",
+          "description": "Virus strain/subtype as reported.",
+          "examples": ["H5N1", "H5Nx", "H7N3", "H5N5", "untyped/pending typing"]
+        },
+        "type": {
+          "type": "string",
+          "enum": ["outbreak", "case"]
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "countryEntry": {
+      "type": "object",
+      "required": ["country", "continent", "strains", "totals"],
+      "properties": {
+        "country": { "type": "string" },
+        "continent": {
+          "type": "string",
+          "enum": ["Europe", "Africa", "Americas", "Asia", "Oceania"]
+        },
+        "strains": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/strainCount" }
+        },
+        "totals": { "$ref": "#/$defs/counts" }
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "required": ["previousPeriod", "totals", "countries"],
+      "properties": {
+        "previousPeriod": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$"
+        },
+        "totals": {
+          "type": "object",
+          "required": ["outbreaksDelta", "casesDelta", "combinedDelta", "percentChange"],
+          "properties": {
+            "outbreaksDelta": {
+              "type": "integer",
+              "description": "Current month outbreaks minus previous month outbreaks."
+            },
+            "casesDelta": {
+              "type": "integer",
+              "description": "Current month cases minus previous month cases."
+            },
+            "combinedDelta": {
+              "type": "integer",
+              "description": "Current month combined total minus previous month combined total."
+            },
+            "percentChange": {
+              "type": "number",
+              "description": "Percentage change in combined total versus the previous month, rounded to 1 decimal place."
+            }
+          }
+        },
+        "countries": {
+          "type": "array",
+          "description": "Per-country deltas. Only includes countries that appeared in either month.",
+          "items": {
+            "type": "object",
+            "required": ["country", "outbreaksDelta", "casesDelta"],
+            "properties": {
+              "country": { "type": "string" },
+              "outbreaksDelta": { "type": "integer" },
+              "casesDelta": { "type": "integer" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
