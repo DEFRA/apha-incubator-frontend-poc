@@ -1,3 +1,7 @@
+> [!WARNING]
+> **This repository has been archived.** It is no longer maintained and is read-only.
+> Please follow [DEFRA/apha-incubator-core](https://github.com/DEFRA/apha-incubator-core) for ongoing updates.
+
 # apha-incubator-frontend-poc
 
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_apha-incubator-frontend-poc&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=DEFRA_apha-incubator-frontend-poc)
